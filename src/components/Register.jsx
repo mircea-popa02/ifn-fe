@@ -1,4 +1,3 @@
-// src/components/Register.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -7,10 +6,25 @@ const Register = () => {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Simulate registration
-        navigate('/login');
+        try {
+            const response = await fetch('http://localhost:5000/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username: email, password })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                navigate('/login');
+            } else {
+                console.error('Registration failed:', data.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
     };
 
     return (
