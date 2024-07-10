@@ -1,30 +1,39 @@
-import React, { useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { Tabs, TabList, Item, TabPanels, Text } from "@adobe/react-spectrum";
+import { useLocation } from "react-router-dom";
+import MembersList from "./MembersList";
+import PersonsList from "./PersonsList";
+import PaymentsList from "./PaymentsList";
+import ContractsList from "./ContractsList";
+import { useAuth } from "../../context/AuthContext";
 
 const Home = () => {
-    const { user, logout } = useAuth();
-    const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
-    useEffect(() => {
-        if (!user) {
-            navigate('/login');
-        }
-    }, [user, navigate]);
+  const tabs = [
+    { key: "one", title: "Membrii", component: <MembersList /> },
+    { key: "two", title: "Persoane", component: <PersonsList /> },
+    { key: "three", title: "Plati", component: <PaymentsList /> },
+    { key: "four", title: "Contracte", component: <ContractsList /> },
+  ];
 
-    return (
-        <div>
-            {user && (
-                <>
-                    <h1>Welcome, {user.username}</h1>
-                    <button onClick={() => {
-                        logout();
-                        navigate('/login');
-                    }}>Logout</button>
-                </>
-            )}
-        </div>
-    );
+  return (
+    <>
+      <Tabs aria-label="Dynamic Tabs Example">
+        <TabList>
+          {tabs.map((tab) => (
+            <Item key={tab.key}>{tab.title}</Item>
+          ))}
+        </TabList>
+        <TabPanels>
+          {tabs.map((tab) => (
+            <Item key={tab.key}>{tab.component}</Item>
+          ))}
+        </TabPanels>
+      </Tabs>
+      <button onClick={logout}>Logout</button>
+    </>
+  );
 };
 
 export default Home;
