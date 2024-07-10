@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import {Button, ButtonGroup, Form, TextField, View} from '@adobe/react-spectrum';
+
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -16,7 +18,7 @@ const Login = () => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ username: username, password })
+                body: JSON.stringify({ username, password })
             });
             const data = await response.json();
             if (response.ok) {
@@ -31,11 +33,36 @@ const Login = () => {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <input type="username" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" />
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
-            <button type="submit">Login</button>
-        </form>
+        <View
+            UNSAFE_style={{ 
+                display: 'flex', 
+                flexDirection: 'column',
+                justifyContent: 'center', 
+                alignItems: 'center', 
+                height: '100vh' 
+            }}
+        >
+            <h1>Login</h1>
+            <Form onSubmit={handleSubmit} maxWidth="size-3600" width="100%">
+                <TextField 
+                    label="Username" 
+                    value={username} 
+                    onChange={setUsername}
+                    isRequired
+                />
+                <TextField 
+                    label="Password" 
+                    type="password" 
+                    value={password} 
+                    onChange={setPassword} 
+                    isRequired 
+                />
+                <ButtonGroup>
+                    <Button type="submit" variant="cta">Login</Button>
+                    <Button type="reset" variant="secondary">Reset</Button>
+                </ButtonGroup>
+            </Form>
+        </View>
     );
 };
 
