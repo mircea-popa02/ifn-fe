@@ -15,29 +15,14 @@ import {
   Form,
   TextField,
   ButtonGroup,
+  Divider,
+
 } from "@adobe/react-spectrum";
+import ClientForm from "./ClientForm";
 
 const PersonsList = () => {
   const [persons, setPersons] = useState([]);
-  const [formData, setFormData] = useState({
-    member_id: "",
-    name: "",
-    city: "",
-    address: "",
-    corespondence_address: "",
-    county: "",
-    identity_card: "",
-    identity_card_series: "",
-    identity_card_number: "",
-    provided_by: "",
-    provided_on: "",
-    expires_on: "",
-    social_security_number: "",
-    work_phone: "",
-    personal_phone: "",
-    employer: "",
-    revenue_certificate: "",
-  });
+
   const { token } = useAuth();
 
   useEffect(() => {
@@ -65,161 +50,18 @@ const PersonsList = () => {
     }
   }, [token]);
 
-  const handleSave = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/client/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      });
-      if (response.ok) {
-        // Refetch the list of persons after adding a new one
-        fetchPersons();
-      } else {
-        const errorData = await response.json();
-        console.error("Failed to add person:", errorData.message);
-      }
-    } catch (error) {
-      console.error("Error adding person:", error);
-    }
-  };
 
-  const handleInputChange = (key, value) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [key]: value,
-    }));
-  };
 
   return (
     <div>
       <h1>Persoane</h1>
       <DialogTrigger>
-        <Button variant="accent">Save</Button>
+        <Button variant="accent">Adauga</Button>
         {(close) => (
           <Dialog>
-            <Heading>Add New Client</Heading>
+            <Heading>Adauga persoana</Heading>
             <Content>
-              <Form>
-                <TextField
-                  label="Member ID"
-                  value={formData.member_id}
-                  onChange={(value) => handleInputChange("member_id", value)}
-                  isRequired
-                />
-                <TextField
-                  label="Name"
-                  value={formData.name}
-                  onChange={(value) => handleInputChange("name", value)}
-                  isRequired
-                />
-                <TextField
-                  label="City"
-                  value={formData.city}
-                  onChange={(value) => handleInputChange("city", value)}
-                />
-                <TextField
-                  label="Address"
-                  value={formData.address}
-                  onChange={(value) => handleInputChange("address", value)}
-                />
-                <TextField
-                  label="Correspondence Address"
-                  value={formData.corespondence_address}
-                  onChange={(value) =>
-                    handleInputChange("corespondence_address", value)
-                  }
-                />
-                <TextField
-                  label="County"
-                  value={formData.county}
-                  onChange={(value) => handleInputChange("county", value)}
-                />
-                <TextField
-                  label="Identity Card"
-                  value={formData.identity_card}
-                  onChange={(value) =>
-                    handleInputChange("identity_card", value)
-                  }
-                />
-                <TextField
-                  label="Identity Card Series"
-                  value={formData.identity_card_series}
-                  onChange={(value) =>
-                    handleInputChange("identity_card_series", value)
-                  }
-                />
-                <TextField
-                  label="Identity Card Number"
-                  value={formData.identity_card_number}
-                  onChange={(value) =>
-                    handleInputChange("identity_card_number", value)
-                  }
-                />
-                <TextField
-                  label="Provided By"
-                  value={formData.provided_by}
-                  onChange={(value) => handleInputChange("provided_by", value)}
-                />
-                <TextField
-                  label="Provided On"
-                  value={formData.provided_on}
-                  onChange={(value) => handleInputChange("provided_on", value)}
-                />
-                <TextField
-                  label="Expires On"
-                  value={formData.expires_on}
-                  onChange={(value) => handleInputChange("expires_on", value)}
-                />
-                <TextField
-                  label="Social Security Number"
-                  value={formData.social_security_number}
-                  onChange={(value) =>
-                    handleInputChange("social_security_number", value)
-                  }
-                />
-                <TextField
-                  label="Work Phone"
-                  value={formData.work_phone}
-                  onChange={(value) => handleInputChange("work_phone", value)}
-                />
-                <TextField
-                  label="Personal Phone"
-                  value={formData.personal_phone}
-                  onChange={(value) =>
-                    handleInputChange("personal_phone", value)
-                  }
-                />
-                <TextField
-                  label="Employer"
-                  value={formData.employer}
-                  onChange={(value) => handleInputChange("employer", value)}
-                />
-                <TextField
-                  label="Revenue Certificate"
-                  value={formData.revenue_certificate}
-                  onChange={(value) =>
-                    handleInputChange("revenue_certificate", value)
-                  }
-                />
-                <ButtonGroup>
-                  <Button
-                    variant="cta"
-                    onPress={() => {
-                      handleSave();
-                      close();
-                    }}
-                  >
-                    Save
-                  </Button>
-                  <Button variant="secondary" onPress={close}>
-                    Cancel
-                  </Button>
-                </ButtonGroup>
-              </Form>
+              <ClientForm />
             </Content>
           </Dialog>
         )}
@@ -240,19 +82,50 @@ const PersonsList = () => {
               <Cell>{person.county}</Cell>
               <Cell>
                 <DialogTrigger>
-                  <Button variant="cta">Modifica</Button>
+                  <Button variant="secondary" style="fill">Modifica</Button>
                   {(close) => {
                     return (
-                      <Content UNSAFE_className="modal">
-                        <h1>Modifica persoana</h1>
-                        <Button onPress={close}>Close</Button>
-                      </Content>
+                      <Dialog>
+                        <Content UNSAFE_className="modal">
+                          <h1>Modifica persoana</h1>
+                          <Button onPress={close}>Close</Button>
+                        </Content>
+                      </Dialog>
                     );
                   }}
                 </DialogTrigger>
               </Cell>
               <Cell>
-                <Button variant="primary">Detalii</Button>
+                <DialogTrigger>
+                  <Button variant="primary" style="fill">Detalii</Button>
+                  {(close) => {
+                    return (
+                      <Dialog>
+                        <Heading>Detalii persoana</Heading>
+
+                        <Divider />
+                        <Content UNSAFE_className="modal">
+                          <p><strong>Adresa:</strong> {person.address}</p>
+                          <p><strong>Adresa corespondenta:</strong> {person.corespondence_address}</p>
+                          <p><strong>Oras:</strong> {person.city}</p>
+                          <p><strong>Judet:</strong> {person.county}</p>
+                          <p><strong>Numar CI:</strong> {person.identity_card_number}</p>
+                          <p><strong>Serie CI:</strong> {person.identity_card_series}</p>
+                          <p><strong>CI eliberat de:</strong> {person.provided_by}</p>
+                          <p><strong>CI eliberat la data de:</strong> {person.provided_on}</p>
+                          <p><strong>CI expira la data de:</strong> {person.expires_on}</p>
+                          <p><strong>CNP:</strong> {person.social_security_number}</p>
+                          <p><strong>Telefon servici:</strong> {person.work_phone}</p>
+                          <p><strong>Telefon personal:</strong> {person.personal_phone}</p>
+                          <p><strong>Angajator:</strong> {person.employer}</p>
+                          <p><strong>Certificat venit:</strong> {person.revenue_certificate}</p>
+
+                          <Button onPress={close}>Close</Button>
+                        </Content>
+                      </Dialog>
+                    );
+                  }}
+                </DialogTrigger>
               </Cell>
             </Row>
           ))}
