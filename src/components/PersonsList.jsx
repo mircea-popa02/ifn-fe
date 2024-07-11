@@ -7,6 +7,9 @@ import {
   TableBody,
   Row,
   Cell,
+  Button,
+  DialogTrigger,
+  Content,
 } from "@adobe/react-spectrum";
 
 const PersonsList = () => {
@@ -16,7 +19,7 @@ const PersonsList = () => {
   useEffect(() => {
     const fetchPersons = async () => {
       try {
-        console.log("Token:", token); // Debugging log
+        console.log("Token:", token);
         const response = await fetch("http://localhost:5000/client/", {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -43,14 +46,34 @@ const PersonsList = () => {
       <h1>Persoane</h1>
       <TableView aria-label="Persons table">
         <TableHeader>
-          <Column>Member ID</Column>
-          <Column>Name</Column>
+          <Column>ID Membru</Column>
+          <Column>Nume</Column>
+          <Column>Oras</Column>
+          <Column>Modifica</Column>
+          <Column>Detalii</Column>
         </TableHeader>
         <TableBody>
           {persons.map((person) => (
             <Row key={person._id.$oid}>
               <Cell>{person.member_id}</Cell>
               <Cell>{person.name}</Cell>
+              <Cell>{person.county}</Cell>
+              <Cell>
+                <DialogTrigger>
+                  <Button variant="cta">Modifica</Button>
+                  {(close) => {
+                    return (
+                      <Content UNSAFE_className="modal">
+                        <h1>Modifica persoana</h1>
+                        <Button onPress={close}>Close</Button>
+                      </Content>
+                    );
+                  }}
+                </DialogTrigger>
+              </Cell>
+              <Cell>
+                <Button variant="primary">Detalii</Button>
+              </Cell>
             </Row>
           ))}
         </TableBody>
