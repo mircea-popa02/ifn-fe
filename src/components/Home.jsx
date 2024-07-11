@@ -1,6 +1,13 @@
 import React from "react";
-import { Tabs, TabList, Item, TabPanels, Text } from "@adobe/react-spectrum";
-import { useLocation } from "react-router-dom";
+import {
+  Tabs,
+  TabList,
+  Item,
+  TabPanels,
+  Text,
+  Button,
+} from "@adobe/react-spectrum";
+import { useLocation, useNavigate } from "react-router-dom";
 import MembersList from "./MembersList";
 import PersonsList from "./PersonsList";
 import PaymentsList from "./PaymentsList";
@@ -9,6 +16,7 @@ import { useAuth } from "../../context/AuthContext";
 
 const Home = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const tabs = [
     { key: "one", title: "Membrii", component: <MembersList /> },
@@ -31,7 +39,16 @@ const Home = () => {
           ))}
         </TabPanels>
       </Tabs>
-      <button onClick={logout}>Logout</button>
+      <Button
+        onPress={() => {
+          logout();
+          navigate("/login");
+        }}
+        variant="negative"
+        style="fill"
+      >
+        Logout
+      </Button>
     </>
   );
 };
