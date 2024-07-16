@@ -13,6 +13,7 @@ import {
   Content,
   Heading,
   Divider,
+  Header,
 } from "@adobe/react-spectrum";
 import ClientForm from "./ClientForm";
 
@@ -47,18 +48,20 @@ const PersonsList = () => {
 
   return (
     <div>
-      <h1>Persoane</h1>
-      <DialogTrigger>
-        <Button variant="accent">Adauga</Button>
-        {(close) => (
-          <Dialog>
-            <Heading>Adauga persoana</Heading>
-            <Content>
-              <ClientForm close={close} onClientAdded={fetchPersons} />
-            </Content>
-          </Dialog>
-        )}
-      </DialogTrigger>
+      <Header UNSAFE_className="home-header">
+        <h1>Persoane</h1>
+        <DialogTrigger>
+          <Button variant="accent">Adauga</Button>
+          {(close) => (
+            <Dialog>
+              <Heading>Adauga persoana</Heading>
+              <Content>
+                <ClientForm close={close} onClientAdded={fetchPersons} />
+              </Content>
+            </Dialog>
+          )}
+        </DialogTrigger>
+      </Header>
       <TableView aria-label="Persons table">
         <TableHeader>
           <Column>ID Membru</Column>

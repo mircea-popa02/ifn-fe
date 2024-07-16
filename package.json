@@ -12,6 +12,7 @@
   "dependencies": {
     "@adobe/react-spectrum": "^3.35.1",
     "@babel/preset-react": "^7.24.7",
+    "@react-spectrum/toast": "^3.0.0-beta.12",
     "@vitejs/plugin-react": "^4.3.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Form, TextField, Button, ButtonGroup } from "@adobe/react-spectrum";
 import { useAuth } from "../../context/AuthContext";
+import { ToastQueue } from "@react-spectrum/toast";
 
 const ClientForm = ({
   close,
@@ -167,7 +168,13 @@ const ClientForm = ({
         onChange={(value) => handleInputChange("revenue_certificate", value)}
       />
       <ButtonGroup>
-        <Button variant="cta" onPress={handleSave}>
+        <Button
+          variant="cta"
+          onPress={() => {
+            ToastQueue.positive("Actiune incheiata cu succes!");
+            handleSave();
+          }}
+        >
           {isUpdate ? "Modifica" : "Adauga"}
         </Button>
         <Button variant="secondary" onPress={close}>
