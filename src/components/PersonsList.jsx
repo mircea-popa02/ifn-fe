@@ -80,9 +80,14 @@ const PersonsList = () => {
                   </Button>
                   {(close) => (
                     <Dialog>
-                      <Content UNSAFE_className="modal">
-                        <h1>Modifica persoana</h1>
-                        <Button onPress={close}>Close</Button>
+                      <Heading>Modifica persoana</Heading>
+                      <Content>
+                        <ClientForm
+                          close={close}
+                          onClientAdded={fetchPersons}
+                          initialValues={person}
+                          isUpdate={true}
+                        />
                       </Content>
                     </Dialog>
                   )}

@@ -1,8 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Form, TextField, Button, ButtonGroup } from "@adobe/react-spectrum";
 import { useAuth } from "../../context/AuthContext";
 
-const ClientForm = ({ close, onClientAdded }) => {
+const ClientForm = ({
+  close,
+  onClientAdded,
+  initialValues = {},
+  isUpdate = false,
+}) => {
   const [formData, setFormData] = useState({
     member_id: "",
     name: "",
@@ -22,12 +27,30 @@ const ClientForm = ({ close, onClientAdded }) => {
     employer: "",
     revenue_certificate: "",
   });
+
+  useEffect(() => {
+    if (isUpdate && initialValues) {
+      setFormData(initialValues);
+    }
+  }, [initialValues, isUpdate]);
+
   const { token } = useAuth();
 
   const handleSave = async () => {
     try {
-      const response = await fetch("http://localhost:5000/client/", {
-        method: "POST",
+      const url = isUpdate
+        ? `http://localhost:5000/client/${formData.member_id}`
+        : "http://localhost:5000/client/";
+
+      const method = isUpdate ? "PUT" : "POST";
+
+      const dataToSend = { ...formData };
+      if (dataToSend._id) {
+        delete dataToSend._id;
+      }
+
+      const response = await fetch(url, {
+        method: method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -39,10 +62,10 @@ const ClientForm = ({ close, onClientAdded }) => {
         close();
       } else {
         const errorData = await response.json();
-        console.error("Failed to add person:", errorData.message);
+        console.error("Failed to save client:", errorData.message);
       }
     } catch (error) {
-      console.error("Error adding person:", error);
+      console.error("Error saving client:", error);
     }
   };
 
@@ -60,6 +83,7 @@ const ClientForm = ({ close, onClientAdded }) => {
         value={formData.member_id}
         onChange={(value) => handleInputChange("member_id", value)}
         isRequired
+        isDisabled={isUpdate}
       />
       <TextField
         label="Name"
@@ -144,7 +168,7 @@ const ClientForm = ({ close, onClientAdded }) => {
       />
       <ButtonGroup>
         <Button variant="cta" onPress={handleSave}>
-          Adauga
+          {isUpdate ? "Modifica" : "Adauga"}
         </Button>
         <Button variant="secondary" onPress={close}>
           Anuleaza
