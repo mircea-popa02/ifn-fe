@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import {
+  ActionMenu,
   TableHeader,
   TableView,
   Column,
@@ -14,16 +15,21 @@ import {
   Heading,
   Divider,
   Header,
+  Item,
+  ActionButton,
+  DialogContainer,
 } from "@adobe/react-spectrum";
 import ClientForm from "./ClientForm";
+import SmockInfoIcon from "./SmockInfoIcon";
 
 const PersonsList = () => {
   const [persons, setPersons] = useState([]);
   const { token } = useAuth();
+  const [dialog, setDialog] = useState(null);
+  const [selectedPerson, setSelectedPerson] = useState(null);
 
   const fetchPersons = async () => {
     try {
-      console.log("Token:", token);
       const response = await fetch("http://localhost:5000/client/", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -67,8 +73,7 @@ const PersonsList = () => {
           <Column>ID Membru</Column>
           <Column>Nume</Column>
           <Column>Oras</Column>
-          <Column>Modifica</Column>
-          <Column>Detalii</Column>
+          <Column>Actiuni</Column>
         </TableHeader>
         <TableBody>
           {persons.map((person) => (
@@ -77,94 +82,126 @@ const PersonsList = () => {
               <Cell>{person.name}</Cell>
               <Cell>{person.city}</Cell>
               <Cell>
-                <DialogTrigger>
-                  <Button variant="secondary" style="fill">
-                    Modifica
-                  </Button>
-                  {(close) => (
-                    <Dialog>
-                      <Heading>Modifica persoana</Heading>
-                      <Content>
-                        <ClientForm
-                          close={close}
-                          onClientAdded={fetchPersons}
-                          initialValues={person}
-                          isUpdate={true}
-                        />
-                      </Content>
-                    </Dialog>
-                  )}
-                </DialogTrigger>
-              </Cell>
-              <Cell>
-                <DialogTrigger>
-                  <Button variant="primary" style="fill">
-                    Detalii
-                  </Button>
-                  {(close) => (
-                    <Dialog>
-                      <Heading>Detalii persoana</Heading>
-                      <Divider />
-                      <Content UNSAFE_className="modal">
-                        <p>
-                          <strong>Adresa:</strong> {person.address}
-                        </p>
-                        <p>
-                          <strong>Adresa corespondenta:</strong>{" "}
-                          {person.corespondence_address}
-                        </p>
-                        <p>
-                          <strong>Oras:</strong> {person.city}
-                        </p>
-                        <p>
-                          <strong>Judet:</strong> {person.county}
-                        </p>
-                        <p>
-                          <strong>Numar CI:</strong>{" "}
-                          {person.identity_card_number}
-                        </p>
-                        <p>
-                          <strong>Serie CI:</strong>{" "}
-                          {person.identity_card_series}
-                        </p>
-                        <p>
-                          <strong>CI eliberat de:</strong> {person.provided_by}
-                        </p>
-                        <p>
-                          <strong>CI eliberat la data de:</strong>{" "}
-                          {person.provided_on}
-                        </p>
-                        <p>
-                          <strong>CI expira la data de:</strong>{" "}
-                          {person.expires_on}
-                        </p>
-                        <p>
-                          <strong>CNP:</strong> {person.social_security_number}
-                        </p>
-                        <p>
-                          <strong>Telefon servici:</strong> {person.work_phone}
-                        </p>
-                        <p>
-                          <strong>Telefon personal:</strong>{" "}
-                          {person.personal_phone}
-                        </p>
-                        <p>
-                          <strong>Angajator:</strong> {person.employer}
-                        </p>
-                        <p>
-                          <strong>Certificat venit:</strong>{" "}
-                          {person.revenue_certificate}
-                        </p>
-                        <Button onPress={close}>Close</Button>
-                      </Content>
-                    </Dialog>
-                  )}
-                </DialogTrigger>
+                <ActionButton
+                  onPress={() => {
+                    setSelectedPerson(person);
+                    setDialog("info");
+                  }}
+                >
+                  <SmockInfoIcon />
+                </ActionButton>
+                <ActionMenu
+                  onAction={(key) => {
+                    setSelectedPerson(person);
+                    if (key === "modifica") setDialog("modifica");
+                    if (key === "sterge") setDialog("sterge");
+                  }}
+                >
+                  <Item key="modifica">Modifica</Item>
+                  <Item key="sterge">Sterge</Item>
+                </ActionMenu>
               </Cell>
             </Row>
           ))}
         </TableBody>
       </TableView>
+
+      {dialog && (
+        <DialogContainer onDismiss={() => setDialog(null)}>
+          {dialog === "info" && (
+            <Dialog>
+              <Heading>Detalii persoana</Heading>
+              <Divider />
+              <Content UNSAFE_className="modal">
+                <p>
+                  <strong>Adresa:</strong> {selectedPerson.address}
+                </p>
+                <p>
+                  <strong>Adresa corespondenta:</strong>{" "}
+                  {selectedPerson.corespondence_address}
+                </p>
+                <p>
+                  <strong>Oras:</strong> {selectedPerson.city}
+                </p>
+                <p>
+                  <strong>Judet:</strong> {selectedPerson.county}
+                </p>
+                <p>
+                  <strong>Numar CI:</strong>{" "}
+                  {selectedPerson.identity_card_number}
+                </p>
+                <p>
+                  <strong>Serie CI:</strong>{" "}
+                  {selectedPerson.identity_card_series}
+                </p>
+                <p>
+                  <strong>CI eliberat de:</strong> {selectedPerson.provided_by}
+                </p>
+                <p>
+                  <strong>CI eliberat la data de:</strong>{" "}
+                  {selectedPerson.provided_on}
+                </p>
+                <p>
+                  <strong>CI expira la data de:</strong>{" "}
+                  {selectedPerson.expires_on}
+                </p>
+                <p>
+                  <strong>CNP:</strong> {selectedPerson.social_security_number}
+                </p>
+                <p>
+                  <strong>Telefon servici:</strong> {selectedPerson.work_phone}
+                </p>
+                <p>
+                  <strong>Telefon personal:</strong>{" "}
+                  {selectedPerson.personal_phone}
+                </p>
+                <p>
+                  <strong>Angajator:</strong> {selectedPerson.employer}
+                </p>
+                <p>
+                  <strong>Certificat venit:</strong>{" "}
+                  {selectedPerson.revenue_certificate}
+                </p>
+                <Button onPress={() => setDialog(null)}>Inchide</Button>
+              </Content>
+            </Dialog>
+          )}
+          {dialog === "modifica" && (
+            <Dialog>
+              <Heading>Modifica persoana</Heading>
+              <Content>
+                <ClientForm
+                  close={() => setDialog(null)}
+                  onClientAdded={fetchPersons}
+                  initialValues={selectedPerson}
+                  isUpdate={true}
+                />
+              </Content>
+            </Dialog>
+          )}
+          {dialog === "sterge" && (
+            <Dialog>
+              <Heading>Sterge persoana</Heading>
+              <Divider />
+              <Content>
+                Esti sigur ca vrei sa stergi persoana?
+                <Button
+                  variant="negative"
+                  onPress={() => {
+                    // Add your delete logic here
+                    setDialog(null);
+                  }}
+                >
+                  Sterge
+                </Button>
+                <Button variant="secondary" onPress={() => setDialog(null)}>
+                  Anuleaza
+                </Button>
+              </Content>
+            </Dialog>
+          )}
+        </DialogContainer>
+      )}
     </div>
   );
 };
