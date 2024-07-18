@@ -15,18 +15,23 @@ import {
   Heading,
   Divider,
   Header,
+  Flex,
   Item,
   ActionButton,
   DialogContainer,
+  SearchField,
+  ButtonGroup,
 } from "@adobe/react-spectrum";
 import ClientForm from "./ClientForm";
 import SmockInfoIcon from "./SmockInfoIcon";
+import { ToastQueue } from "@react-spectrum/toast";
 
 const PersonsList = () => {
   const [persons, setPersons] = useState([]);
   const { token } = useAuth();
   const [dialog, setDialog] = useState(null);
   const [selectedPerson, setSelectedPerson] = useState(null);
+  let [nameSearchText, setNameSearchText] = React.useState(null);
 
   const fetchPersons = async () => {
     try {
@@ -52,6 +57,35 @@ const PersonsList = () => {
     }
   }, [token]);
 
+  const handleDelete = async (member_id) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/client/${member_id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.ok) {
+        fetchPersons();
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to delete client:", errorData.message);
+      }
+    } catch (error) {
+      console.error("Error deleting client:", error);
+    }
+  };
+
+  let filteredPersons = persons.filter((person) => {
+    if (nameSearchText === null) {
+      return true;
+    }
+    return person.name.toLowerCase().includes(nameSearchText.toLowerCase());
+  });
+
   return (
     <div>
       <Header UNSAFE_className="home-header">
@@ -68,43 +102,46 @@ const PersonsList = () => {
           )}
         </DialogTrigger>
       </Header>
-      <TableView aria-label="Persons table">
-        <TableHeader>
-          <Column>ID Membru</Column>
-          <Column>Nume</Column>
-          <Column>Oras</Column>
-          <Column>Actiuni</Column>
-        </TableHeader>
-        <TableBody>
-          {persons.map((person) => (
-            <Row key={person._id.$oid}>
-              <Cell>{person.member_id}</Cell>
-              <Cell>{person.name}</Cell>
-              <Cell>{person.city}</Cell>
-              <Cell>
-                <ActionButton
-                  onPress={() => {
-                    setSelectedPerson(person);
-                    setDialog("info");
-                  }}
-                >
-                  <SmockInfoIcon />
-                </ActionButton>
-                <ActionMenu
-                  onAction={(key) => {
-                    setSelectedPerson(person);
-                    if (key === "modifica") setDialog("modifica");
-                    if (key === "sterge") setDialog("sterge");
-                  }}
-                >
-                  <Item key="modifica">Modifica</Item>
-                  <Item key="sterge">Sterge</Item>
-                </ActionMenu>
-              </Cell>
-            </Row>
-          ))}
-        </TableBody>
-      </TableView>
+      <SearchField label="Cauta dupa nume" onChange={setNameSearchText} />
+      <Flex height="size-8000" width="100%" direction="column" gap="size-150">
+        <TableView aria-label="Persons table">
+          <TableHeader>
+            <Column>ID Membru</Column>
+            <Column>Nume</Column>
+            <Column>Oras</Column>
+            <Column>Actiuni</Column>
+          </TableHeader>
+          <TableBody>
+            {filteredPersons.map((person) => (
+              <Row key={person._id.$oid}>
+                <Cell>{person.member_id}</Cell>
+                <Cell>{person.name}</Cell>
+                <Cell>{person.city}</Cell>
+                <Cell>
+                  <ActionButton
+                    onPress={() => {
+                      setSelectedPerson(person);
+                      setDialog("info");
+                    }}
+                  >
+                    <SmockInfoIcon />
+                  </ActionButton>
+                  <ActionMenu
+                    onAction={(key) => {
+                      setSelectedPerson(person);
+                      if (key === "modifica") setDialog("modifica");
+                      if (key === "sterge") setDialog("sterge");
+                    }}
+                  >
+                    <Item key="modifica">Modifica</Item>
+                    <Item key="sterge">Sterge</Item>
+                  </ActionMenu>
+                </Cell>
+              </Row>
+            ))}
+          </TableBody>
+        </TableView>
+      </Flex>
 
       {dialog && (
         <DialogContainer onDismiss={() => setDialog(null)}>
@@ -183,12 +220,13 @@ const PersonsList = () => {
             <Dialog>
               <Heading>Sterge persoana</Heading>
               <Divider />
-              <Content>
-                Esti sigur ca vrei sa stergi persoana?
+              <Content>Esti sigur ca vrei sa stergi persoana?</Content>
+              <ButtonGroup>
                 <Button
                   variant="negative"
                   onPress={() => {
-                    // Add your delete logic here
+                    handleDelete(selectedPerson.member_id);
+                    ToastQueue.positive("Persoana a fost stearsa!");
                     setDialog(null);
                   }}
                 >
@@ -197,7 +235,7 @@ const PersonsList = () => {
                 <Button variant="secondary" onPress={() => setDialog(null)}>
                   Anuleaza
                 </Button>
-              </Content>
+              </ButtonGroup>
             </Dialog>
           )}
         </DialogContainer>
