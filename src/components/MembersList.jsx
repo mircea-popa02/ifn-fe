@@ -81,7 +81,7 @@ const MembersList = () => {
 
   let filteredPersons = persons.filter((person) => {
     return (
-      person.contractId &&
+      person.contract &&
       person.name.toLowerCase().includes(nameSearchText.toLowerCase())
     );
   });
@@ -90,17 +90,6 @@ const MembersList = () => {
     <div>
       <Header UNSAFE_className="home-header">
         <h1>Membri</h1>
-        <DialogTrigger>
-          <Button variant="accent">Adauga</Button>
-          {(close) => (
-            <Dialog>
-              <Heading>Adauga persoana</Heading>
-              <Content>
-                <ClientForm close={close} onClientAdded={fetchPersons} />
-              </Content>
-            </Dialog>
-          )}
-        </DialogTrigger>
       </Header>
       <SearchField label="Cauta dupa nume" onChange={setNameSearchText} />
       <Flex height="size-8000" width="100%" direction="column" gap="size-150">
