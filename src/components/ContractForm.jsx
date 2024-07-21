@@ -242,10 +242,10 @@ const ContractForm = ({ close, onContractAdded, persons }) => {
       ))}
       <ButtonGroup>
         <Button variant="cta" onPress={handleSave}>
-          Add Contract
+          Adauga Contract
         </Button>
         <Button variant="secondary" onPress={close}>
-          Cancel
+          Inchide
         </Button>
       </ButtonGroup>
     </Form>

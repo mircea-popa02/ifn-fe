@@ -16,11 +16,15 @@ import {
   Header,
   Flex,
   ActionButton,
+  ActionMenu,
   SearchField,
+  Item,
   DialogContainer,
 } from "@adobe/react-spectrum";
 import { ToastQueue } from "@react-spectrum/toast";
 import ContractForm from "./ContractForm";
+import SmockInfoIcon from "./SmockInfoIcon";
+import { Link } from "react-router-dom";
 
 const ContractsList = () => {
   const [contracts, setContracts] = useState([]);
@@ -116,10 +120,10 @@ const ContractsList = () => {
       <Header UNSAFE_className="home-header">
         <h1>Contracte</h1>
         <DialogTrigger>
-          <Button variant="accent">Add Contract</Button>
+          <Button variant="accent">Adauga Contract</Button>
           {(close) => (
             <Dialog>
-              <Heading>Add Contract</Heading>
+              <Heading>Adauga Contract</Heading>
               <Content>
                 <ContractForm
                   close={close}
@@ -132,29 +136,29 @@ const ContractsList = () => {
         </DialogTrigger>
       </Header>
       <SearchField
-        label="Search by Contract Number"
+        label="Cauta dupa numarul contractului"
         onChange={setContractNumberSearchText}
       />
       <SearchField
-        label="Search by Contract Name"
+        label="Cauta dupa numele contractului"
         onChange={setContractNameSearchText}
       />
       <SearchField
-        label="Search by Indebted Number"
+        label="Cauta dupa numarul membrului"
         onChange={setIndebtedNumberSearchText}
       />
       <SearchField
-        label="Search by Indebted Name"
+        label="Cauta dupa numele membrului"
         onChange={setIndebtedNameSearchText}
       />
       <Flex height="size-8000" width="100%" direction="column" gap="size-150">
         <TableView aria-label="Contracts table">
           <TableHeader>
-            <Column>Contract Number</Column>
-            <Column>Contract Name</Column>
+            <Column>Numar Contract</Column>
+            <Column>Nume Contract</Column>
             <Column>Status</Column>
-            <Column>Value</Column>
-            <Column>Actions</Column>
+            <Column>Valoare</Column>
+            <Column>Actiuni</Column>
           </TableHeader>
           <TableBody>
             {filteredContracts.map((contract) => {
@@ -166,9 +170,35 @@ const ContractsList = () => {
                   <Cell>{contract.status}</Cell>
                   <Cell>{contract.value}</Cell>
                   <Cell>
-                    <ActionButton>Action 1</ActionButton>
-                    <ActionButton>Action 2</ActionButton>
-                    <ActionButton>Action 3</ActionButton>
+                    <ActionButton
+                      onPress={() => {
+                        setSelectedContract(contract);
+                        setDialog("info");
+                      }}
+                    >
+                      <SmockInfoIcon />
+                    </ActionButton>
+                    <ActionMenu
+                      onAction={(key) => {
+                        setSelectedContract(contract);
+                        if (key === "modifica") setDialog("modifica");
+                        if (key === "sterge") setDialog("sterge");
+                        if (key === "grafic") {
+                          const url = `/contract/${contract.contract_number}/graficrambursare`;
+                          window.open(url, "_blank");
+                        }
+                      }}
+                    >
+                      <Item key="modifica">Modifica</Item>
+                      <Item key="sterge">Sterge</Item>
+                      <Item key="grafic">
+                        {/* <Link
+                          to={`/contract/${contract.contract_number}/graficrambursare`}
+                        > */}
+                        Grafic de rambursare
+                        {/* </Link> */}
+                      </Item>
+                    </ActionMenu>
                   </Cell>
                 </Row>
               );
@@ -176,6 +206,66 @@ const ContractsList = () => {
           </TableBody>
         </TableView>
       </Flex>
+      {dialog && (
+        <DialogContainer onDismiss={() => setDialog(null)}>
+          {dialog === "info" && (
+            <Dialog>
+              <Heading>Detalii contract</Heading>
+              <Divider />
+              <Content UNSAFE_className="modal">
+                <p>
+                  <strong>Număr contract:</strong>{" "}
+                  {selectedContract.contract_number}
+                </p>
+                <p>
+                  <strong>Data:</strong> {selectedContract.date}
+                </p>
+                <p>
+                  <strong>Model contract:</strong>{" "}
+                  {selectedContract.contract_model}
+                </p>
+                <p>
+                  <strong>Agent:</strong> {selectedContract.agent}
+                </p>
+                <p>
+                  <strong>Valoare:</strong> {selectedContract.value}
+                </p>
+                <p>
+                  <strong>Luni:</strong> {selectedContract.months}
+                </p>
+                <p>
+                  <strong>Dobânda remunerativă:</strong>{" "}
+                  {selectedContract.remunerative_interest}
+                </p>
+                <p>
+                  <strong>EAR:</strong> {selectedContract.ear}
+                </p>
+                <p>
+                  <strong>Penalitate zilnică:</strong>{" "}
+                  {selectedContract.daily_penalty}
+                </p>
+                <p>
+                  <strong>Data scadentă:</strong> {selectedContract.due_day}
+                </p>
+                <p>
+                  <strong>Statut:</strong> {selectedContract.status}
+                </p>
+                <p>
+                  <strong>Execuție:</strong> {selectedContract.execution}
+                </p>
+                <p>
+                  <strong>Data execuției:</strong>{" "}
+                  {selectedContract.execution_date}
+                </p>
+                <p>
+                  <strong>Datori:</strong> {selectedContract.debtors.join(", ")}
+                </p>
+                <Button onPress={() => setDialog(null)}>Inchide</Button>
+              </Content>
+            </Dialog>
+          )}
+        </DialogContainer>
+      )}
     </div>
   );
 };

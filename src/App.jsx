@@ -5,6 +5,7 @@ import Login from "./components/Login";
 import Home from "./components/Home";
 import { ToastContainer } from "@react-spectrum/toast";
 import { defaultTheme, Provider } from "@adobe/react-spectrum";
+import RepaymentSchedule from "./components/RepaymentSchedule";
 
 const App = () => {
   return (
@@ -15,6 +16,10 @@ const App = () => {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<Home />} />
+            <Route
+              path="/contract/:contractNumber/graficrambursare"
+              element={<RepaymentSchedule />}
+            />
           </Routes>
         </Router>
       </AuthProvider>
