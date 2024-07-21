@@ -1,0 +1,62 @@
+.printcontract-container {
+  font-size: 12px; /* Smaller font size */
+  line-height: 1.2; /* Smaller line height */
+}
+
+.printcontract-header p {
+  margin: 0;
+  /* text-align: center; */
+}
+
+.printcontract-title {
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  margin: 20px 0;
+}
+
+.printcontract-subtitle {
+  text-align: center;
+  /* font-size: 12px; */
+  margin: 5px 0;
+}
+
+.printcontract-fragment {
+  line-height: 1.2; /* Smaller line height */
+}
+
+.printcontract-section-title {
+  font-size: 14px;
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+.printcontract-section-content {
+  margin: 10px 0;
+  text-indent: 20px;
+}
+
+.printcontract-section-debtors {
+  margin: 10px 0;
+  text-indent: 40px;
+}
+
+.printcontract-print-button {
+  margin-top: 20px;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.printcontract-signatures {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.printcontract-signature {
+  text-align: center;
+  width: 20%;
+}

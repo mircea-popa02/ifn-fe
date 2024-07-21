@@ -187,17 +187,16 @@ const ContractsList = () => {
                           const url = `/contract/${contract.contract_number}/graficrambursare`;
                           window.open(url, "_blank");
                         }
+                        if (key === "print") {
+                          const url = `/contract/${contract.contract_number}/printcontract`;
+                          window.open(url, "_blank");
+                        }
                       }}
                     >
                       <Item key="modifica">Modifica</Item>
                       <Item key="sterge">Sterge</Item>
-                      <Item key="grafic">
-                        {/* <Link
-                          to={`/contract/${contract.contract_number}/graficrambursare`}
-                        > */}
-                        Grafic de rambursare
-                        {/* </Link> */}
-                      </Item>
+                      <Item key="grafic">Grafic de rambursare</Item>
+                      <Item key="print">Vizualizare contract</Item>
                     </ActionMenu>
                   </Cell>
                 </Row>
