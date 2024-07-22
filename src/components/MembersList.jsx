@@ -10,7 +10,6 @@ import {
   Cell,
   Button,
   Dialog,
-  DialogTrigger,
   Content,
   Heading,
   Divider,

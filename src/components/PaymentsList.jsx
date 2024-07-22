@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { TableHeader, TableView, Row, ActionMenu, Cell, Column, TableBody, Item, Header } from "@adobe/react-spectrum";
 
 const PaymentsList = () => {
   const [payments, setPayments] = useState([]);
+  const [selectedPayment, setSelectedPayment] = useState(null);
   const { token } = useAuth();
 
   const fetchPayments = async () => {
@@ -28,11 +30,44 @@ const PaymentsList = () => {
     if (token) {
       fetchPayments();
     }
-  }, [token]);  // Removed the extra comma here
+  }, [token]);
 
   return (
     <div>
-      <h1>Plati</h1>
+      <Header UNSAFE_className="home-header">
+        <h1>Plati</h1>
+      </Header>
+      <TableView aria-label='Payments table'>
+        <TableHeader>
+          <Column>Id</Column>
+          <Column>Nume</Column>
+          <Column>Valoare</Column>
+          <Column>Data plata</Column>
+          <Column>Actiuni</Column>
+        </TableHeader>
+        <TableBody>
+          {payments.map(payment => (
+            <Row key={payment._id.$oid}>
+              <Cell>{payment._id.$oid}</Cell>
+              <Cell>{payment.member_name}</Cell>
+              <Cell>{payment.value}</Cell>
+              <Cell>{payment.date}</Cell>
+              <Cell>
+                <ActionMenu
+                  onAction={(key) => {
+                    setSelectedPayment(payment);
+                    if (key === 'modifica') setDialog('modifica');
+                    if (key === 'sterge') setDialog('sterge');
+                  }}
+                  >
+                    <Item key='modifica'>Modifica</Item>
+                    <Item key='sterge'>Sterge</Item>
+                  </ActionMenu>
+              </Cell>
+            </Row>
+          ))}
+        </TableBody>
+      </TableView>
     </div>
   );
 };
