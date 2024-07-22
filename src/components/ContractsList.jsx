@@ -21,10 +21,8 @@ import {
   Item,
   DialogContainer,
 } from "@adobe/react-spectrum";
-import { ToastQueue } from "@react-spectrum/toast";
 import ContractForm from "./ContractForm";
 import SmockInfoIcon from "./SmockInfoIcon";
-import { Link } from "react-router-dom";
 
 const ContractsList = () => {
   const [contracts, setContracts] = useState([]);
@@ -32,6 +30,7 @@ const ContractsList = () => {
   const { token } = useAuth();
   const [dialog, setDialog] = useState(null);
   const [selectedContract, setSelectedContract] = useState(null);
+
   const [contractNumberSearchText, setContractNumberSearchText] = useState("");
   const [contractNameSearchText, setContractNameSearchText] = useState("");
   const [indebtedNumberSearchText, setIndebtedNumberSearchText] = useState("");
