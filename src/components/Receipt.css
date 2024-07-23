@@ -1,0 +1,31 @@
+.receipt-container {
+  font-size: 12px; /* Smaller font size */
+  line-height: 1.2; /* Smaller line height */
+}
+
+.receipt-container p {
+  margin: 0; /* Smaller margin between paragraphs */
+}
+
+.receipt-container strong {
+  font-weight: bold;
+}
+
+.receipt-print-button {
+  margin-top: 20px;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.split-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.receipt-middle {
+  width: 100%;
+  text-align: left;
+  margin-top: 20px;
+  margin-left: 50px;
+}

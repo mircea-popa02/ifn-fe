@@ -7,6 +7,7 @@ import { ToastContainer } from "@react-spectrum/toast";
 import { defaultTheme, Provider } from "@adobe/react-spectrum";
 import RepaymentSchedule from "./components/RepaymentSchedule";
 import PrintContract from "./components/PrintContract";
+import Receipt from "./components/Receipt";
 
 const App = () => {
   return (
@@ -24,6 +25,10 @@ const App = () => {
             <Route
               path="/contract/:contractNumber/printcontract"
               element={<PrintContract />}
+            />
+            <Route
+              path="/payments/:receiptValue/chitanta"
+              element={<Receipt />}
             />
           </Routes>
         </Router>

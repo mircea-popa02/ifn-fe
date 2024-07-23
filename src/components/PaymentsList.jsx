@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { TableHeader, TableView, Row, ActionMenu, Cell, Column, TableBody, Item, Header } from "@adobe/react-spectrum";
+import {
+  TableHeader,
+  TableView,
+  Row,
+  ActionMenu,
+  Cell,
+  Column,
+  TableBody,
+  Item,
+  Header,
+} from "@adobe/react-spectrum";
 
 const PaymentsList = () => {
   const [payments, setPayments] = useState([]);
@@ -37,7 +47,7 @@ const PaymentsList = () => {
       <Header UNSAFE_className="home-header">
         <h1>Plati</h1>
       </Header>
-      <TableView aria-label='Payments table'>
+      <TableView aria-label="Payments table">
         <TableHeader>
           <Column>Id</Column>
           <Column>Nume</Column>
@@ -46,7 +56,7 @@ const PaymentsList = () => {
           <Column>Actiuni</Column>
         </TableHeader>
         <TableBody>
-          {payments.map(payment => (
+          {payments.map((payment) => (
             <Row key={payment._id.$oid}>
               <Cell>{payment._id.$oid}</Cell>
               <Cell>{payment.member_name}</Cell>
@@ -56,13 +66,18 @@ const PaymentsList = () => {
                 <ActionMenu
                   onAction={(key) => {
                     setSelectedPayment(payment);
-                    if (key === 'modifica') setDialog('modifica');
-                    if (key === 'sterge') setDialog('sterge');
+                    if (key === "modifica") setDialog("modifica");
+                    if (key === "sterge") setDialog("sterge");
+                    if (key === "chitanta") {
+                      const url = `/payments/${payment.value}/chitanta`;
+                      window.open(url, "_blank");
+                    }
                   }}
-                  >
-                    <Item key='modifica'>Modifica</Item>
-                    <Item key='sterge'>Sterge</Item>
-                  </ActionMenu>
+                >
+                  <Item key="modifica">Modifica</Item>
+                  <Item key="sterge">Sterge</Item>
+                  <Item key="chitanta">Vizualizeaza chitanta</Item>
+                </ActionMenu>
               </Cell>
             </Row>
           ))}
