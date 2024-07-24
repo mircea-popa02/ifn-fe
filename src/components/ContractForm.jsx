@@ -174,11 +174,30 @@ const ContractForm = ({ close, onContractAdded, persons }) => {
         value={formData.agent}
         onChange={(value) => handleInputChange("agent", value)}
       />
-      <TextField
+      <ComboBox
         label="Value"
-        value={formData.value}
-        onChange={(value) => handleInputChange("value", value)}
-      />
+        defaultItems={[
+          { id: "5400", name: "5400" },
+          { id: "6480", name: "6480" },
+          { id: "8100", name: "8100" },
+          { id: "9720", name: "9720" },
+          { id: "10800", name: "10800" },
+          { id: "13500", name: "13500" },
+          { id: "16200", name: "16200" },
+          { id: "18900", name: "18900" },
+          { id: "21600", name: "21600" },
+          { id: "24300", name: "24300" },
+          { id: "27000", name: "27000" },
+          { id: "32400", name: "32400" },
+          { id: "37800", name: "37800" },
+          { id: "43200", name: "43200" },
+          { id: "45900", name: "45900" },
+        ]}
+        selectedKey={formData.value}
+        onSelectionChange={(key) => handleInputChange("value", key)}
+      >
+        {(item) => <Item key={item.id}>{item.name}</Item>}
+      </ComboBox>
       <TextField
         label="Months"
         value={formData.months}
