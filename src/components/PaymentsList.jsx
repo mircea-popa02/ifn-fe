@@ -10,7 +10,13 @@ import {
   TableBody,
   Item,
   Header,
+  Dialog,
+  DialogTrigger,
+  Button,
+  Heading,
+  Content
 } from "@adobe/react-spectrum";
+import PaymentForm from "./PaymentForm";
 
 const PaymentsList = () => {
   const [payments, setPayments] = useState([]);
@@ -46,6 +52,17 @@ const PaymentsList = () => {
     <div>
       <Header UNSAFE_className="home-header">
         <h1>Plati</h1>
+        <DialogTrigger>
+          <Button variant="accent">Adauga</Button>
+          {(close) => (
+            <Dialog>
+              <Heading>Adauga plata</Heading>
+              <Content>
+                <PaymentForm close={close} onPaymentAdded={fetchPayments} />
+              </Content>
+            </Dialog>
+          )}
+        </DialogTrigger>
       </Header>
       <TableView aria-label="Payments table">
         <TableHeader>

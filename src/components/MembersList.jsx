@@ -41,7 +41,7 @@ const MembersList = () => {
       });
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.msg || "Failed to fetch persons");
+        throw new Error(errorData.error || "Failed to fetch persons");
       }
       const data = await response.json();
       setPersons(data);
