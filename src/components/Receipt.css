@@ -1,10 +1,10 @@
 .receipt-container {
-  font-size: 12px; /* Smaller font size */
-  line-height: 1.2; /* Smaller line height */
+  font-size: 12px;
+  line-height: 1.2;
 }
 
 .receipt-container p {
-  margin: 0; /* Smaller margin between paragraphs */
+  margin: 0;
 }
 
 .receipt-container strong {
@@ -24,7 +24,6 @@
 }
 
 .receipt-middle {
-  width: 100%;
   text-align: left;
   margin-top: 20px;
   margin-left: 50px;

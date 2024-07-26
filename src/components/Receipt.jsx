@@ -4,50 +4,37 @@ import { useAuth } from "../../context/AuthContext";
 import "./Receipt.css";
 
 const Receipt = () => {
-  const { receiptValue } = useParams();
+  const { receipt } = useParams();
   const { token } = useAuth();
-  const [payments, setPayments] = useState([]);
-  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [payment, setPayment] = useState([]);
 
-  const fetchPayments = async () => {
+  const fetchPayment = async () => {
     try {
-      const response = await fetch("http://localhost:5000/payments/", {
+      const response = await fetch(`http://localhost:5000/payments/search/${receipt}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
+      })
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.msg || "Failed to fetch payments");
       }
+
       const data = await response.json();
-      setPayments(data);
-
-      console.log("chitanta");
-      console.log(receiptValue);
-
-      const foundPayment = data.find(
-        (payment) => payment.value == receiptValue
-      );
-
-      setSelectedPayment(foundPayment);
-
-      console.log("selectedPayment");
-      console.log(foundPayment);
+      console.log(data);
+      setPayment(data);
     } catch (error) {
       console.error("Error fetching payments:", error);
     }
   };
 
   useEffect(() => {
+    console.log(receipt);
     if (token) {
-      fetchPayments();
+      fetchPayment();
     }
   }, [token]);
-
-  if (!selectedPayment) {
-    return <p>Loading...</p>;
-  }
 
   return (
     <>
@@ -66,29 +53,21 @@ const Receipt = () => {
           </div>
           <div>
             <p>Seria: CAR</p>
-            <p>CHITANTA Nr.: {selectedPayment.value}</p>
-            <p>din data de: {selectedPayment.date}</p>
+            <p>CHITANTA Nr.: {payment.value}</p>
+            <p>din data de: {new Date(payment.date.$date).toLocaleDateString()}</p>
           </div>
         </div>
         <div className="receipt-middle">
-          <p>Am primit de la {selectedPayment.member_name}.</p>
+          <p>Am primit de la {payment.member_name}.</p>
           <p>Adresa </p>
-          <p>Suma de {selectedPayment.value} lei.</p>
+          <p>Suma de {payment.value} lei.</p>
           <p>
             Reprezentand Rambursare partiala imprumut conform contract nr.{" "}
-            {selectedPayment.value} / {selectedPayment.date}.
+            {payment.value}
           </p>
         </div>
       </>
-      <br></br>
-      <br></br>
-      <br></br>
-      <br></br>
       <hr></hr>
-      <br></br>
-      <br></br>
-      <br></br>
-      <br></br>
       <>
         <div className="split-header">
           <div className="receipt-container">
@@ -104,17 +83,17 @@ const Receipt = () => {
           </div>
           <div>
             <p>Seria: CAR</p>
-            <p>CHITANTA Nr.: {selectedPayment.value}</p>
-            <p>din data de: {selectedPayment.date}</p>
+            <p>CHITANTA Nr.: {payment.value}</p>
+            <p>din data de: {new Date(payment.date.$date).toLocaleDateString()}</p>
           </div>
         </div>
         <div className="receipt-middle">
-          <p>Am primit de la {selectedPayment.member_name}.</p>
+          <p>Am primit de la {payment.member_name}.</p>
           <p>Adresa </p>
-          <p>Suma de {selectedPayment.value} lei.</p>
+          <p>Suma de {payment.value} lei.</p>
           <p>
             Reprezentand Rambursare partiala imprumut conform contract nr.{" "}
-            {selectedPayment.value} / {selectedPayment.date}.
+            {payment.value}.
           </p>
         </div>
       </>

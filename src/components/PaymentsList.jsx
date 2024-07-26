@@ -136,7 +136,7 @@ const PaymentsList = () => {
                     if (key === "modifica") setDialog("modifica");
                     if (key === "sterge") setDialog("sterge");
                     if (key === "chitanta") {
-                      const url = `/payments/${payment.value}/chitanta`;
+                      const url = `/payments/${payment._id.$oid}/chitanta`;
                       window.open(url, "_blank");
                     }
                   }}
