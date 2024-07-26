@@ -40,11 +40,12 @@ const PaymentForm = ({
   });
 
   const formatDate = (dateObj) => {
-    const year = dateObj.year;
-    const month = String(dateObj.month).padStart(2, "0");
-    const day = String(dateObj.day).padStart(2, "0");
+    // const year = dateObj.year;
+    // const month = String(dateObj.month).padStart(2, "0");
+    // const day = String(dateObj.day).padStart(2, "0");
 
-    return `${year}-${month}-${day}`;
+    // return `${year}-${month}-${day}`;
+    return new Date(dateObj).toISOString();
   };
 
   useEffect(() => {

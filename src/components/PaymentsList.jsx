@@ -21,26 +21,42 @@ import {
 } from "@adobe/react-spectrum";
 import PaymentForm from "./PaymentForm";
 import { ToastQueue } from "@react-spectrum/toast";
+import Pagination from "./Pagination"; // Import the custom Pagination component
 
 const PaymentsList = () => {
   const [payments, setPayments] = useState([]);
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [dialog, setDialog] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [limit, setLimit] = useState(10);
   const { token } = useAuth();
 
-  const fetchPayments = async () => {
+  const fetchPayments = async (page = 1, limit = 10) => {
     try {
-      const response = await fetch("http://localhost:5000/payments/", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `http://localhost:5000/payments/?page=${page}&limit=${limit}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.msg || "Failed to fetch payments");
       }
       const data = await response.json();
-      setPayments(data);
+
+      // Convert MongoDB date objects to readable strings
+      const formattedPayments = data.payments.map((payment) => ({
+        ...payment,
+        date: new Date(payment.date.$date).toLocaleDateString(), // Convert date to string
+      }));
+
+      setPayments(formattedPayments);
+      setCurrentPage(data.page);
+      setTotalPages(Math.ceil(data.total_payments / limit));
     } catch (error) {
       console.error("Error fetching payments:", error);
     }
@@ -58,7 +74,7 @@ const PaymentsList = () => {
         }
       );
       if (response.ok) {
-        fetchPayments();
+        fetchPayments(currentPage, limit);
         ToastQueue.positive("Plata a fost ștearsă cu succes!");
       } else {
         const errorData = await response.json();
@@ -71,9 +87,13 @@ const PaymentsList = () => {
 
   useEffect(() => {
     if (token) {
-      fetchPayments();
+      fetchPayments(currentPage, limit);
     }
-  }, [token]);
+  }, [token, currentPage, limit]);
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
 
   return (
     <div>
@@ -85,7 +105,10 @@ const PaymentsList = () => {
             <Dialog>
               <Heading>Adauga plata</Heading>
               <Content>
-                <PaymentForm close={close} onPaymentAdded={fetchPayments} />
+                <PaymentForm
+                  close={close}
+                  onPaymentAdded={() => fetchPayments(currentPage, limit)}
+                />
               </Content>
             </Dialog>
           )}
@@ -127,6 +150,11 @@ const PaymentsList = () => {
           ))}
         </TableBody>
       </TableView>
+      <Pagination
+        page={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
       {dialog && (
         <DialogContainer onDismiss={() => setDialog(null)}>
           {dialog === "modifica" && (
@@ -135,7 +163,7 @@ const PaymentsList = () => {
               <Content>
                 <PaymentForm
                   close={() => setDialog(null)}
-                  onPaymentAdded={fetchPayments}
+                  onPaymentAdded={() => fetchPayments(currentPage, limit)}
                   initialValues={selectedPayment}
                   isUpdate={true}
                 />
