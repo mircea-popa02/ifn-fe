@@ -54,7 +54,7 @@ const Receipt = () => {
           <div>
             <p>Seria: CAR</p>
             <p>CHITANTA Nr.: {payment.value}</p>
-            <p>din data de: {new Date(payment.date.$date).toLocaleDateString()}</p>
+            <p>din data de: {new Date(payment?.date?.$date).toLocaleDateString()}</p>
           </div>
         </div>
         <div className="receipt-middle">
@@ -84,7 +84,7 @@ const Receipt = () => {
           <div>
             <p>Seria: CAR</p>
             <p>CHITANTA Nr.: {payment.value}</p>
-            <p>din data de: {new Date(payment.date.$date).toLocaleDateString()}</p>
+            <p>din data de: {new Date(payment?.date?.$date).toLocaleDateString()}</p>
           </div>
         </div>
         <div className="receipt-middle">
