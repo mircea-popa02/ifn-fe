@@ -10,7 +10,13 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { ToastQueue } from "@react-spectrum/toast";
 
-const ContractForm = ({ close, onContractAdded, persons }) => {
+const ContractForm = ({
+  close,
+  onContractAdded,
+  persons,
+  initialValues = {},
+  isUpdate = false,
+}) => {
   const [formData, setFormData] = useState({
     contract_number: "",
     date: "",
@@ -41,6 +47,12 @@ const ContractForm = ({ close, onContractAdded, persons }) => {
     setDebtorFilters(persons.map(() => persons));
   }, [persons]);
 
+  useEffect(() => {
+    if (isUpdate && initialValues) {
+      setFormData(initialValues);
+    }
+  }, [initialValues, isUpdate]);
+
   const handleSave = async () => {
     try {
       const indebtedPerson = persons.find(
@@ -50,7 +62,12 @@ const ContractForm = ({ close, onContractAdded, persons }) => {
         console.error("Invalid indebted person selected");
         return;
       }
-      const url = `http://localhost:5000/contract/${indebtedPerson.member_id}`;
+
+      const url = isUpdate
+        ? `http://localhost:5000/contract/${formData.contract_number}`
+        : `http://localhost:5000/contract/${indebtedPerson.member_id}`;
+
+      const method = isUpdate ? "PUT" : "POST";
 
       const dataToSend = {
         ...formData,
@@ -65,12 +82,8 @@ const ContractForm = ({ close, onContractAdded, persons }) => {
       };
       delete dataToSend.indebted;
 
-      console.log("URL:", url);
-      console.log("Data to send:", JSON.stringify(dataToSend, null, 2));
-      console.log("Token:", token);
-
       const response = await fetch(url, {
-        method: "POST",
+        method: method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -78,14 +91,16 @@ const ContractForm = ({ close, onContractAdded, persons }) => {
         body: JSON.stringify(dataToSend),
       });
 
-      const responseBody = await response.text(); // Read response body as text for logging
-      console.log("Response status:", response.status);
-      console.log("Response body:", responseBody);
+      const responseBody = await response.text();
 
       if (response.ok) {
         onContractAdded();
         close();
-        ToastQueue.positive("Contract created successfully!");
+        ToastQueue.positive(
+          isUpdate
+            ? "Contract updated successfully!"
+            : "Contract created successfully!"
+        );
       } else {
         console.error("Failed to save contract:", responseBody);
       }
@@ -158,6 +173,7 @@ const ContractForm = ({ close, onContractAdded, persons }) => {
         value={formData.contract_number}
         onChange={(value) => handleInputChange("contract_number", value)}
         isRequired
+        isDisabled={isUpdate}
       />
       <TextField
         label="Date"
@@ -193,6 +209,7 @@ const ContractForm = ({ close, onContractAdded, persons }) => {
           { id: "43200", name: "43200" },
           { id: "45900", name: "45900" },
         ]}
+        defaultInputValue={formData.value}
         selectedKey={formData.value}
         onSelectionChange={(key) => handleInputChange("value", key)}
       >
@@ -261,7 +278,7 @@ const ContractForm = ({ close, onContractAdded, persons }) => {
       ))}
       <ButtonGroup>
         <Button variant="cta" onPress={handleSave}>
-          Adauga Contract
+          {isUpdate ? "Modifica Contract" : "Adauga Contract"}
         </Button>
         <Button variant="secondary" onPress={close}>
           Inchide

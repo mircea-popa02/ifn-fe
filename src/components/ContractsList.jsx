@@ -20,9 +20,11 @@ import {
   SearchField,
   Item,
   DialogContainer,
+  ButtonGroup,
 } from "@adobe/react-spectrum";
 import ContractForm from "./ContractForm";
 import SmockInfoIcon from "./SmockInfoIcon";
+import { ToastQueue } from "@react-spectrum/toast";
 
 const ContractsList = () => {
   const [contracts, setContracts] = useState([]);
@@ -83,6 +85,29 @@ const ContractsList = () => {
   const getPersonDetails = (personId) => {
     const person = persons.find((p) => p._id.$oid === personId);
     return person ? person : { name: "", member_id: "" };
+  };
+
+  const handleDelete = async (contract_number) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/contract/${contract_number}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.ok) {
+        fetchContracts();
+        ToastQueue.positive("Contract a fost șters cu succes!");
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to delete contract:", errorData.message);
+      }
+    } catch (error) {
+      console.error("Error deleting contract:", error);
+    }
   };
 
   const filteredContracts = contracts.filter((contract) => {
@@ -260,6 +285,41 @@ const ContractsList = () => {
                 </p>
                 <Button onPress={() => setDialog(null)}>Inchide</Button>
               </Content>
+            </Dialog>
+          )}
+          {dialog === "modifica" && (
+            <Dialog>
+              <Heading>Modifica contract</Heading>
+              <Content>
+                <ContractForm
+                  close={() => setDialog(null)}
+                  onContractAdded={fetchContracts}
+                  initialValues={selectedContract}
+                  persons={persons}
+                  isUpdate={true}
+                />
+              </Content>
+            </Dialog>
+          )}
+          {dialog === "sterge" && (
+            <Dialog>
+              <Heading>Sterge contract</Heading>
+              <Divider />
+              <Content>Esti sigur ca vrei sa stergi contractul?</Content>
+              <ButtonGroup>
+                <Button
+                  variant="negative"
+                  onPress={() => {
+                    handleDelete(selectedContract.contract_number);
+                    setDialog(null);
+                  }}
+                >
+                  Sterge
+                </Button>
+                <Button variant="secondary" onPress={() => setDialog(null)}>
+                  Anuleaza
+                </Button>
+              </ButtonGroup>
             </Dialog>
           )}
         </DialogContainer>

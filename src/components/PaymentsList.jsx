@@ -14,13 +14,18 @@ import {
   DialogTrigger,
   Button,
   Heading,
-  Content
+  Content,
+  Divider,
+  DialogContainer,
+  ButtonGroup,
 } from "@adobe/react-spectrum";
 import PaymentForm from "./PaymentForm";
+import { ToastQueue } from "@react-spectrum/toast";
 
 const PaymentsList = () => {
   const [payments, setPayments] = useState([]);
   const [selectedPayment, setSelectedPayment] = useState(null);
+  const [dialog, setDialog] = useState(null);
   const { token } = useAuth();
 
   const fetchPayments = async () => {
@@ -36,9 +41,31 @@ const PaymentsList = () => {
       }
       const data = await response.json();
       setPayments(data);
-      console.log(data);
     } catch (error) {
       console.error("Error fetching payments:", error);
+    }
+  };
+
+  const handleDelete = async (payment_id) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/payments/${payment_id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response.ok) {
+        fetchPayments();
+        ToastQueue.positive("Plata a fost ștearsă cu succes!");
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to delete payment:", errorData.message);
+      }
+    } catch (error) {
+      console.error("Error deleting payment:", error);
     }
   };
 
@@ -100,6 +127,44 @@ const PaymentsList = () => {
           ))}
         </TableBody>
       </TableView>
+      {dialog && (
+        <DialogContainer onDismiss={() => setDialog(null)}>
+          {dialog === "modifica" && (
+            <Dialog>
+              <Heading>Modifică plată</Heading>
+              <Content>
+                <PaymentForm
+                  close={() => setDialog(null)}
+                  onPaymentAdded={fetchPayments}
+                  initialValues={selectedPayment}
+                  isUpdate={true}
+                />
+              </Content>
+            </Dialog>
+          )}
+          {dialog === "sterge" && (
+            <Dialog>
+              <Heading>Șterge plată</Heading>
+              <Divider />
+              <Content>Ești sigur că vrei să ștergi această plată?</Content>
+              <ButtonGroup>
+                <Button
+                  variant="negative"
+                  onPress={() => {
+                    handleDelete(selectedPayment._id.$oid);
+                    setDialog(null);
+                  }}
+                >
+                  Șterge
+                </Button>
+                <Button variant="secondary" onPress={() => setDialog(null)}>
+                  Anulează
+                </Button>
+              </ButtonGroup>
+            </Dialog>
+          )}
+        </DialogContainer>
+      )}
     </div>
   );
 };
