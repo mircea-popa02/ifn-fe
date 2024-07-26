@@ -1,19 +1,7 @@
-.repaymentschedule-container {
-  font-size: 12px; /* Smaller font size */
-  line-height: 1.2; /* Smaller line height */
+.wrapper {
+  padding: 32px;
 }
 
-.repaymentschedule-container p {
-  margin: 5px 0; /* Smaller margin between paragraphs */
-}
-
-.repaymentschedule-container strong {
-  font-weight: bold;
-}
-
-.repaymentschedule-print-button {
-  margin-top: 20px;
-  padding: 5px 10px;
-  font-size: 12px;
-  cursor: pointer;
+.chip {
+  padding: 16px;
 }

@@ -3,31 +3,66 @@ import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import "./RepaymentSchedule.css";
 
-import { TableView, View, TableHeader, Column, TableBody, Row, Cell } from "@adobe/react-spectrum";
+import { TableView, View, TableHeader, Column, TableBody, Row, Cell, Heading, TagGroup, Item } from "@adobe/react-spectrum";
 
 const RepaymentSchedule = () => {
   const { contractNumber } = useParams();
   const [contract, setContract] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [interestAndRate, setInterestAndRate] = useState([]);
   const { token } = useAuth();
+  const [dates, setDates] = useState([]);
 
-  const createDatesArray = () => {
+  useEffect(() => {
+    if (token) {
+      fetchContracts();
+    }
+  }, [token]);
+
+  const createDatesArray = (contract) => {
     // creates an array of contract.months dates.
     // for example contract.date is 2021-11-04 (YYYY-MM-DD) and contract.months is 3
     // the result will be ["2021-12-15", "2022-01-15", "2022-02-15"]
     // DD will always be contract.due_day
     const dates = [];
-    console.log(contract);
+    const dueDay = parseInt(contract.due_day);
     const date = new Date(contract.date);
+    const year = date.getFullYear();
+    const month = date.getMonth();
     for (let i = 0; i < contract.months; i++) {
-      date.setMonth(date.getMonth() + 1);
-      dates.push(
-        `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, "0")}-${contract.due_day}`
-      );
+      const newDate = new Date(year, month + i + 1, dueDay + 1);
+      dates.push(newDate.toISOString().split("T")[0]);
     }
+    console.log(dates);
     return dates;
   }
+
+  const computeInterestAndRate = (contract) => {
+    const monthlyRate = contract.remunerative_interest / 12 / 100;
+    // first interest = contract.value * monthlyRate, first rate = contract.rate - first interest
+    // second interest = (contract.value - (contract.rate - first interest) * monthlyRate, second rate = contract.rate - second interest
+    // this must be done for contract.months times and an array of objects must be returned
+
+    const interestRate = [];
+    let value = contract.value;
+    for (let i = 0; i < contract.months; i++) {
+      const interest = value * monthlyRate;
+      const rate = contract.rate - interest;
+      value -= rate;
+      interestRate.push({ interest, rate, value });
+      
+    }
+
+    // the last tuple will have value 0 and rate will be equal to the last value and interest will be contract.rate - last value
+    interestRate[contract.months - 1].rate = interestRate[contract.months - 2].value;
+    interestRate[contract.months - 1].interest = contract.rate - interestRate[contract.months - 1].rate
+    interestRate[contract.months - 1].value = 0;
+
+    console.log(interestRate);
+    return interestRate;
+  }
+
 
   const fetchContracts = async () => {
     try {
@@ -52,118 +87,81 @@ const RepaymentSchedule = () => {
       if (!foundContract) {
         throw new Error("Contract not found");
       }
-      setContract(foundContract);
-
+      setContract(foundContract)
+      setDates(createDatesArray(foundContract))
+      setInterestAndRate(computeInterestAndRate(foundContract))
     } catch (error) {
       console.error("Error fetching contracts:", error);
-      setError(error.message);
+      setError(error.message)
     } finally {
       setLoading(false);
-      createDatesArray();
     }
   };
-
-  useEffect(() => {
-    if (token) {
-      fetchContracts();
-
-
-    }
-  }, [token]);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
   if (!contract) return <p>Contract not found</p>;
 
-
-
-  const calculateSchedule = () => {
-    const schedule = [];
-    let remainingBalance = contract.value;
-    for (let i = 0; i < contract.months; i++) {
-      const interest = (contract.remunerative_interest / 100 / 12) * remainingBalance;
-      const total = contract.rate + interest;
-      remainingBalance -= contract.rate;
-
-      const dueDate = new Date(contract.date);
-      dueDate.setMonth(dueDate.getMonth() + i + 1);
-      const formattedDueDate = `${dueDate.getDate().toString().padStart(2, '0')}-${(dueDate.getMonth() + 1).toString().padStart(2, '0')}-${dueDate.getFullYear()}`;
-
-      schedule.push({
-        installmentNumber: i + 1,
-        dueDate: formattedDueDate,
-        loanInstallment: contract.rate.toFixed(2),
-        interest: interest.toFixed(2),
-        total: total.toFixed(2),
-        remainingBalance: remainingBalance.toFixed(2),
-      });
-    }
-    return schedule;
-  };
-
-  const schedule = calculateSchedule();
-
   return (
-    <>
-      <div className="repaymentschedule-container">
+    <div className="wrapper">
+      <Heading>
+        Grafic de rambursare a creditului nr. {contract.contract_number}
+      </Heading>
+      <View UNSAFE_className="container">
         <p>Asociatia CAR „SUD-EST” IFN</p>
-        <p>Bucureşti, str.Şipcă, nr.20, sector 2, CUI 30501844</p>
+        <p>Bucureşti, str. Şipcă, nr.20, sector 2, CUI 30501844</p>
         <p>Înregistrată la Judecătoria sector 2 Bucureşti nr.89/29.06.2012</p>
         <p>Banca Transilvania</p>
         <p>Cont RO42BTRLRONCRT0029936302</p>
         <p>Tel: 0799 958 138 / 0723.598.524 / 0723.598.542</p>
         <p>www.creditsudest.ro</p>
-        <p>
-          <strong>Număr contract:</strong> {contract.contract_number}
-        </p>
-        <p>
-          <strong>Data:</strong> {contract.date}
-        </p>
-        <p>
-          <strong>Model contract:</strong> {contract.contract_model}
-        </p>
-        <p>
-          <strong>Agent:</strong> {contract.agent}
-        </p>
-        <p>
-          <strong>Valoare:</strong> {contract.value}
-        </p>
-        <p>
-          <strong>Luni:</strong> {contract.months}
-        </p>
-        <p>
-          <strong>Dobânda remunerativă:</strong> {contract.remunerative_interest}
-        </p>
-        <p>
-          <strong>EAR:</strong> {contract.ear}
-        </p>
-        <p>
-          <strong>Penalitate zilnică:</strong> {contract.daily_penalty}
-        </p>
-        <p>
-          <strong>Data scadentă:</strong> {contract.due_day}
-        </p>
-        <p>
-          <strong>Statut:</strong> {contract.status}
-        </p>
-        <p>
-          <strong>Execuție:</strong> {contract.execution}
-        </p>
-        <p>
-          <strong>Data execuției:</strong> {contract.execution_date}
-        </p>
-        <p>
-          <strong>Datori:</strong> {contract.debtors.join(", ")}
-        </p>
-        <button
-          className="repaymentschedule-print-button"
-          onClick={() => window.print()}
-        >
-          Print
-        </button>
-      </div>
+        <TagGroup aria-label="Contract Information">
+          <Item UNSAFE_className="chip">
+            <strong>Număr contract: </strong> {contract.contract_number}
+          </Item>
+          <Item UNSAFE_className="chip">
+            <strong>Din data: </strong> {contract.date}
+          </Item>
+          <Item UNSAFE_className="chip">
+            <strong>Model contract: </strong> {contract.contract_model}
+          </Item>
+          <Item UNSAFE_className="chip">
+            <strong>Agent: </strong> {contract.agent}
+          </Item>
+          <Item UNSAFE_className="chip">
+            <strong>Valoare imprumut: </strong> {contract.value.toFixed(2)} lei
+          </Item>
+          <Item UNSAFE_className="chip">
+            <strong>Numarul de rate: </strong> {contract.months}
+          </Item>
+          <Item UNSAFE_className="chip">
+            <strong>Dobânda remunerativă: </strong> {contract.remunerative_interest}%
+          </Item>
+          <Item UNSAFE_className="chip">
+            <strong>DAE: </strong> {contract.ear}%
+          </Item>
+          <Item UNSAFE_className="chip">
+            <strong>Penalitate zilnică: </strong> {contract.daily_penalty}
+          </Item>
+          <Item UNSAFE_className="chip">
+            <strong>Data scadentă: </strong> maxim {contract.due_day} ale lunii
+          </Item>
+          <Item UNSAFE_className="chip">
+            <strong>Statut: </strong> {contract.status}
+          </Item>
+          <Item UNSAFE_className="chip">
+            <strong>Execuție: </strong> {contract.execution}
+          </Item>
+          <Item UNSAFE_className="chip">
+            <strong>Data execuției: </strong> {contract.execution_date}
+          </Item>
+          <Item UNSAFE_className="chip">
+            <strong>Datori: </strong> {contract.debtors.join(", ")}
+          </Item>
+        </TagGroup>
+      </View>
 
-      <View className="repaymentschedule-table-container">
+      <View UNSAFE_className="table">
         <TableView aria-label="Example table with static contents">
           <TableHeader>
             <Column isRowHeader>Nr. Crt</Column>
@@ -180,22 +178,22 @@ const RepaymentSchedule = () => {
               <Cell>0.00</Cell>
               <Cell>0.00</Cell>
               <Cell>0.00</Cell>
-              <Cell>{contract.value}</Cell>
+              <Cell>{contract.value.toFixed(2)}</Cell>
             </Row>
-            {schedule.map((installment) => (
-              <Row key={installment.installmentNumber}>
-                <Cell>{installment.installmentNumber}</Cell>
-                <Cell>{installment.dueDate}</Cell>
-                <Cell>{installment.loanInstallment}</Cell>
-                <Cell>{installment.interest}</Cell>
-                <Cell>{installment.total}</Cell>
-                <Cell>{installment.remainingBalance}</Cell>
+            {dates.map((date, index) => (
+              <Row key={index + 1}>
+                <Cell>{index + 1}</Cell>
+                <Cell>{date}</Cell>
+                <Cell>{interestAndRate[index].rate.toFixed(2)}</Cell>
+                <Cell>{interestAndRate[index].interest.toFixed(2)}</Cell>
+                <Cell>{contract.rate.toFixed(2)}</Cell>
+                <Cell>{interestAndRate[index].value.toFixed(2)}</Cell>
               </Row>
             ))}
           </TableBody>
         </TableView>
       </View>
-    </>
+    </div>
   );
 };
 
