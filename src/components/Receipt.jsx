@@ -4,13 +4,15 @@ import { useAuth } from "../../context/AuthContext";
 import "./Receipt.css";
 
 const Receipt = () => {
-  const { receipt } = useParams();
+  const { payment_id } = useParams();
   const { token } = useAuth();
   const [payment, setPayment] = useState([]);
+  const [member, setMember] = useState([]);
+  const [contract, setContract] = useState([]);
 
   const fetchPayment = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/payments/search/${receipt}`, {
+      const response = await fetch(`http://localhost:5000/payments/search/${payment_id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -24,15 +26,60 @@ const Receipt = () => {
       const data = await response.json();
       console.log(data);
       setPayment(data);
+      fetchClient(data.member_id.$oid);
+      fetchContract(data.contract_id.$oid);
     } catch (error) {
       console.error("Error fetching payments:", error);
     }
   };
 
+  const fetchClient = async (member_id) => {
+    try {
+      const response = await fetch(`http://localhost:5000/client/id/${member_id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.msg || "Failed to fetch member");
+      }
+
+      const data = await response.json();
+      console.log(data);
+      setMember(data);
+    } catch (error) {
+      console.error("Error fetching member:", error);
+    }
+  }
+
+  const fetchContract = async (contract_id) => {
+    try {
+      const response = await fetch(`http://localhost:5000/contract/id/${contract_id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.msg || "Failed to fetch contract");
+      }
+
+      const data = await response.json();
+      console.log(data);
+      setContract(data);
+
+    } catch (error) {
+      console.error("Error fetching contract:", error);
+    }
+  }
+
   useEffect(() => {
-    console.log(receipt);
+    console.log(payment_id);
     if (token) {
-      fetchPayment();
+      fetchPayment()
     }
   }, [token]);
 
@@ -53,17 +100,17 @@ const Receipt = () => {
           </div>
           <div>
             <p>Seria: CAR</p>
-            <p>CHITANTA Nr.: {payment.value}</p>
+            <p>CHITANTA Nr.: {payment.payment_id}</p>
             <p>din data de: {new Date(payment?.date?.$date).toLocaleDateString()}</p>
           </div>
         </div>
         <div className="receipt-middle">
           <p>Am primit de la {payment.member_name}.</p>
-          <p>Adresa </p>
+          <p>Adresa {member.address}</p>
           <p>Suma de {payment.value} lei.</p>
           <p>
             Reprezentand Rambursare partiala imprumut conform contract nr.{" "}
-            {payment.value}
+            {contract.contract_number} / {contract.date}
           </p>
         </div>
       </>
@@ -89,11 +136,11 @@ const Receipt = () => {
         </div>
         <div className="receipt-middle">
           <p>Am primit de la {payment.member_name}.</p>
-          <p>Adresa </p>
+          <p>Adresa {member.address}</p>
           <p>Suma de {payment.value} lei.</p>
           <p>
             Reprezentand Rambursare partiala imprumut conform contract nr.{" "}
-            {payment.value}.
+            {contract.contract_number} / {contract.date}
           </p>
         </div>
       </>

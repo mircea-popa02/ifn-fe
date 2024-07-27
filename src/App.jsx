@@ -27,7 +27,7 @@ const App = () => {
               element={<PrintContract />}
             />
             <Route
-              path="/payments/:receipt/chitanta"
+              path="/payments/:payment_id/chitanta"
               element={<Receipt />}
             />
           </Routes>

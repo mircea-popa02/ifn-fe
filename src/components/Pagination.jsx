@@ -17,15 +17,17 @@ const Pagination = ({ page, totalPages, onPageChange }) => {
 
   return (
     <div className="pagination">
-      <ActionButton onPress={handlePrev} isDisabled={page <= 1}>
-        Previous
-      </ActionButton>
       <span>
-        Page {page} of {totalPages}
+        Pagina {page} din {totalPages}
       </span>
-      <ActionButton onPress={handleNext} isDisabled={page >= totalPages}>
-        Next
-      </ActionButton>
+      <div className="controls">
+        <ActionButton onPress={handlePrev} isDisabled={page <= 1}>
+          Inapoi
+        </ActionButton>
+        <ActionButton onPress={handleNext} isDisabled={page >= totalPages}>
+          Inainte
+        </ActionButton>
+      </div>
     </div>
   );
 };
