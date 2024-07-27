@@ -33,8 +33,9 @@ const PaymentsList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  // 30 days prior start_date
+  const [startDate, setStartDate] = useState(new Date(new Date().setDate(new Date().getDate() - 30)).toISOString());
+  const [endDate, setEndDate] = useState(new Date().toISOString());
   const [isLoading, setIsLoading] = useState(false);
   const { token } = useAuth();
 
@@ -140,12 +141,15 @@ const PaymentsList = () => {
         <br />
         <Button variant="cta" onPress={() => filterPayments(startDate, endDate, currentPage, limit)}>Cauta</Button>
       </div>
+      {/* display start date and end date in nice format */}
       <Pagination
         page={currentPage}
         totalPages={totalPages}
         onPageChange={handlePageChange}
       />
       <br />
+      <p>Rezultate din <strong>{new Date(startDate).toLocaleDateString('en-GB')}</strong> pana <strong>{new Date(endDate).toLocaleDateString('en-GB')}</strong></p>
+
       {isLoading ? (
         <ProgressCircle
           aria-label="Loading…"

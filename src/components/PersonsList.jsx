@@ -25,17 +25,23 @@ import {
 import ClientForm from "./ClientForm";
 import SmockInfoIcon from "./SmockInfoIcon";
 import { ToastQueue } from "@react-spectrum/toast";
+import Pagination from "./Pagination";
 
 const PersonsList = () => {
   const [persons, setPersons] = useState([]);
   const { token } = useAuth();
   const [dialog, setDialog] = useState(null);
   const [selectedPerson, setSelectedPerson] = useState(null);
-  let [nameSearchText, setNameSearchText] = React.useState(null);
+  const [nameSearchText, setNameSearchText] = React.useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [limit, setLimit] = useState(10);
 
-  const fetchPersons = async () => {
+  const fetchPersons = async (page = 1, limit = 10, name = "") => {
+    const url = `http://localhost:5000/clients/search?page=${page}&limit=${limit}&name=${name}`;
+    console.log("Fetching URL:", url); // Log the URL to ensure correct parameters
     try {
-      const response = await fetch("http://localhost:5000/client/", {
+      const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -45,7 +51,8 @@ const PersonsList = () => {
         throw new Error(errorData.msg || "Failed to fetch persons");
       }
       const data = await response.json();
-      setPersons(data);
+      setPersons(data.clients);
+      setTotalPages(Math.ceil(data.total_clients / limit));
     } catch (error) {
       console.error("Error fetching persons:", error);
     }
@@ -53,23 +60,20 @@ const PersonsList = () => {
 
   useEffect(() => {
     if (token) {
-      fetchPersons();
+      fetchPersons(currentPage, limit, nameSearchText);
     }
-  }, [token]);
+  }, [token, currentPage, limit, nameSearchText]);
 
   const handleDelete = async (member_id) => {
     try {
-      const response = await fetch(
-        `http://localhost:5000/client/${member_id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`http://localhost:5000/client/${member_id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (response.ok) {
-        fetchPersons();
+        fetchPersons(currentPage, limit, nameSearchText);
       } else {
         const errorData = await response.json();
         console.error("Failed to delete client:", errorData.message);
@@ -79,12 +83,10 @@ const PersonsList = () => {
     }
   };
 
-  let filteredPersons = persons.filter((person) => {
-    if (nameSearchText === null) {
-      return true;
-    }
-    return person.name.toLowerCase().includes(nameSearchText.toLowerCase());
-  });
+  const handlePageChange = (newPage) => {
+    console.log("Page change:", newPage); // Log page changes
+    setCurrentPage(newPage);
+  };
 
   return (
     <div>
@@ -96,13 +98,21 @@ const PersonsList = () => {
             <Dialog>
               <Heading>Adauga persoana</Heading>
               <Content>
-                <ClientForm close={close} onClientAdded={fetchPersons} />
+                <ClientForm close={close} onClientAdded={() => fetchPersons(currentPage, limit, nameSearchText)} />
               </Content>
             </Dialog>
           )}
         </DialogTrigger>
       </Header>
-      <SearchField label="Cauta dupa nume" onChange={setNameSearchText} />
+
+      <SearchField label="Cauta dupa nume" onChange={setNameSearchText} value={nameSearchText} />
+
+      <Pagination
+        page={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
+
       <Flex height="size-8000" width="100%" direction="column" gap="size-150">
         <TableView aria-label="Persons table">
           <TableHeader>
@@ -112,7 +122,7 @@ const PersonsList = () => {
             <Column>Actiuni</Column>
           </TableHeader>
           <TableBody>
-            {filteredPersons.map((person) => (
+            {persons.map((person) => (
               <Row key={person._id.$oid}>
                 <Cell>{person.member_id}</Cell>
                 <Cell>{person.name}</Cell>
@@ -209,7 +219,7 @@ const PersonsList = () => {
               <Content>
                 <ClientForm
                   close={() => setDialog(null)}
-                  onClientAdded={fetchPersons}
+                  onClientAdded={() => fetchPersons(currentPage, limit, nameSearchText)}
                   initialValues={selectedPerson}
                   isUpdate={true}
                 />
