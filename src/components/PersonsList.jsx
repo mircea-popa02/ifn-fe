@@ -21,6 +21,7 @@ import {
   DialogContainer,
   SearchField,
   ButtonGroup,
+  ProgressCircle,
 } from "@adobe/react-spectrum";
 import ClientForm from "./ClientForm";
 import SmockInfoIcon from "./SmockInfoIcon";
@@ -32,12 +33,14 @@ const PersonsList = () => {
   const { token } = useAuth();
   const [dialog, setDialog] = useState(null);
   const [selectedPerson, setSelectedPerson] = useState(null);
-  const [nameSearchText, setNameSearchText] = React.useState("");
+  const [nameSearchText, setNameSearchText] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [limit, setLimit] = useState(10);
+  const [loading, setLoading] = useState(false); // New state for loading
 
   const fetchPersons = async (page = 1, limit = 10, name = "") => {
+    setLoading(true); // Start loading
     const url = `http://localhost:5000/clients/search?page=${page}&limit=${limit}&name=${name}`;
     console.log("Fetching URL:", url); // Log the URL to ensure correct parameters
     try {
@@ -55,6 +58,8 @@ const PersonsList = () => {
       setTotalPages(Math.ceil(data.total_clients / limit));
     } catch (error) {
       console.error("Error fetching persons:", error);
+    } finally {
+      setLoading(false); // End loading
     }
   };
 
@@ -112,45 +117,51 @@ const PersonsList = () => {
         totalPages={totalPages}
         onPageChange={handlePageChange}
       />
-
+      <br />
+      <Divider size="S"/>
+      <br />
       <Flex height="size-8000" width="100%" direction="column" gap="size-150">
-        <TableView aria-label="Persons table">
-          <TableHeader>
-            <Column>ID Membru</Column>
-            <Column>Nume</Column>
-            <Column>Oras</Column>
-            <Column>Actiuni</Column>
-          </TableHeader>
-          <TableBody>
-            {persons.map((person) => (
-              <Row key={person._id.$oid}>
-                <Cell>{person.member_id}</Cell>
-                <Cell>{person.name}</Cell>
-                <Cell>{person.city}</Cell>
-                <Cell>
-                  <ActionButton
-                    onPress={() => {
-                      setSelectedPerson(person);
-                      setDialog("info");
-                    }}
-                  >
-                    <SmockInfoIcon />
-                  </ActionButton>
-                  <ActionMenu
-                    onAction={(key) => {
-                      setSelectedPerson(person);
-                      if (key === "modifica") setDialog("modifica");
-                      if (key === "sterge") setDialog("sterge");
-                    }}
-                  >
-                    <Item key="modifica">Modifica</Item>
-                    <Item key="sterge">Sterge</Item>
-                  </ActionMenu>
-                </Cell>
-              </Row>
-            ))}
-          </TableBody>
-        </TableView>
+        {loading ? ( // Show loader if loading
+          <ProgressCircle aria-label="Loading…" isIndeterminate />
+        ) : (
+          <TableView aria-label="Persons table">
+            <TableHeader>
+              <Column>ID Membru</Column>
+              <Column>Nume</Column>
+              <Column>Oras</Column>
+              <Column>Actiuni</Column>
+            </TableHeader>
+            <TableBody>
+              {persons.map((person) => (
+                <Row key={person._id.$oid}>
+                  <Cell>{person.member_id}</Cell>
+                  <Cell>{person.name}</Cell>
+                  <Cell>{person.city}</Cell>
+                  <Cell>
+                    <ActionButton
+                      onPress={() => {
+                        setSelectedPerson(person);
+                        setDialog("info");
+                      }}
+                    >
+                      <SmockInfoIcon />
+                    </ActionButton>
+                    <ActionMenu
+                      onAction={(key) => {
+                        setSelectedPerson(person);
+                        if (key === "modifica") setDialog("modifica");
+                        if (key === "sterge") setDialog("sterge");
+                      }}
+                    >
+                      <Item key="modifica">Modifica</Item>
+                      <Item key="sterge">Sterge</Item>
+                    </ActionMenu>
+                  </Cell>
+                </Row>
+              ))}
+            </TableBody>
+          </TableView>
+        )}
       </Flex>
 
       {dialog && (
