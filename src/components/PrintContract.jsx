@@ -78,6 +78,8 @@ const PrintContract = () => {
 
   console.log(debtors);
 
+  const totalToPay = contract.months * contract.rate;
+
   return (
     <div>
       <div className="printcontract-header printcontract-container">
@@ -167,12 +169,13 @@ const PrintContract = () => {
         </h2>
         <p className="printcontract-section-content">
           <strong>3.1</strong> Împrumutul se acordă cu o rată fixă a dobânzii
-          (remuneratorii) de 34.522% pe an aplicată la sold (debit principal):
-          sumele de rambursat și scadențele lunare se regăsesc în graficul de
-          rambursare anexat.
+          (remuneratorii) de <strong>{contract.remunerative_interest}%</strong>
+          pe an aplicată la sold (debit principal): sumele de rambursat și
+          scadențele lunare se regăsesc în graficul de rambursare anexat.
           <br />
           Formula de calcul a dobânzii remuneratorii lunare este : Dobânda
-          remuneratorie lunară = Soldul lunii precedente x 34.522% / 12
+          remuneratorie lunară = Soldul lunii precedente x{" "}
+          <strong>{contract.remunerative_interest}% / 12</strong>
         </p>
         <p className="printcontract-section-content">
           <strong>3.2</strong> Dobânda remuneratorie se calculează de la data
@@ -181,22 +184,28 @@ const PrintContract = () => {
         </p>
         <p className="printcontract-section-content">
           <strong>3.3</strong> Dobânda anuală efectivă (DAE) la data semnării
-          prezentului contract este de {contract.ear}% pe an, calculată în
-          ipoteza că un an are 12 luni egale.
+          prezentului contract este de <strong>{contract.ear}%</strong> pe an,
+          calculată în ipoteza că un an are 12 luni egale.
         </p>
         <p className="printcontract-section-content">
           <strong>3.4</strong> Suma totală plătibilă de ÎMPRUMUTAT calculată la
-          data semnării prezentului contract este în valoare de 44837 lei şi
-          este formată din: împrumut (debit principal) în valoare de 32400 lei
-          plus dobânda totală în valoare de 12437 lei.
+          data semnării prezentului contract este în valoare de{" "}
+          <strong>{totalToPay}</strong> lei şi este formată din: împrumut (debit
+          principal) în valoare de <strong>{contract.value}</strong> lei plus
+          dobânda totală în valoare de{" "}
+          <strong>{totalToPay - contract.value}</strong> lei.
         </p>
         <p className="printcontract-section-content">
           <strong>3.5</strong> În cazul rambursării unor sume mai mici și / sau
           dupa scadenţele stabilite în graficul de rambursare, ÎMPRUMUTATUL se
           obligă să plătească o dobândă penalizatoare (ca preț al folosinței
           capitalului împrumutat, pentru timpul de după scadențe), cu o rată
-          fixă de 37.522% pe an aplicată la principalul restant, proporțional cu
-          numărul de zile.
+          fixă de{" "}
+          <strong>
+            {contract.remunerative_interest + contract.daily_penalty}%
+          </strong>{" "}
+          pe an aplicată la principalul restant, proporțional cu numărul de
+          zile.
         </p>
       </div>
 
@@ -401,8 +410,8 @@ const PrintContract = () => {
           2008/48/CE și art. 5 din OUG 50/2010 actualizată (privind contractele
           de credit pentru consumatori), Codului Civil și Codului de procedură
           civilă. Prezentul contract, citit și aprobat de toate părțile
-          contractante, a fost încheiat astăzi, 04-11-2021 în 5 exemplare,
-          fiecărei părţi semnatare revenindu-i câte un exemplar.
+          contractante, a fost încheiat astăzi, <strong>{contract.date}</strong>{" "}
+          în 5 exemplare, fiecărei părţi semnatare revenindu-i câte un exemplar.
         </p>
       </div>
 
