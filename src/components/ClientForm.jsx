@@ -32,12 +32,10 @@ const ClientForm = ({
 
   useEffect(() => {
     if (isUpdate && initialValues) {
-      const updatedInitialValues = {
-        ...initialValues,
-        provided_on: normalizeDateValue(initialValues.provided_on),
-        expires_on: normalizeDateValue(initialValues.expires_on),
-      };
-      setFormData(updatedInitialValues);
+      console.log("Initial values:", initialValues);
+      initialValues.expires_on = normalizeDateValue(initialValues.expires_on.$date);
+      initialValues.provided_on = normalizeDateValue(initialValues.provided_on.$date);
+      setFormData(initialValues);
     }
   }, [initialValues, isUpdate]);
 
@@ -46,8 +44,8 @@ const ClientForm = ({
   const handleSave = async () => {
     const submissionData = {
       ...formData,
-      expires_on: formatDateISO8601(formData.expires_on),
-      provided_on: formatDateISO8601(formData.provided_on),
+      expires_on: { $date: formatDateISO8601(formData.expires_on) },
+      provided_on: { $date: formatDateISO8601(formData.provided_on) },
     };
 
     try {
@@ -149,13 +147,13 @@ const ClientForm = ({
       <DateField
         label="Provided On"
         name="provided_on"
-        value={normalizeDateValue(formData.provided_on)}
+        value={formData.provided_on}
         onChange={(value) => handleInputChange("provided_on", value)}
       />
       <DateField
         label="Expires On"
         name="expires_on"
-        value={normalizeDateValue(formData.expires_on)}
+        value={formData.expires_on}
         onChange={(value) => handleInputChange("expires_on", value)}
       />
       <TextField

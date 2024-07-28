@@ -12,8 +12,7 @@ export const formatDateISO8601 = (date) => {
     if (day.length < 2) {
         day = "0" + day;
     }
-
-    return `${year}-${month}-${day}T00:00:00.000+00:00`;
+    return new Date(`${year}-${month}-${day}`).toISOString();
 };
 
 export const parseISO8601Date = (isoDate) => {
@@ -26,7 +25,8 @@ export const parseISO8601Date = (isoDate) => {
 };
 
 export const normalizeDateValue = (dateValue) => {
-    if (typeof dateValue === 'string' && dateValue.includes('T')) {
+    console.log("Date value:", dateValue);
+    if (dateValue.includes('T')) {
         return parseISO8601Date(dateValue);
     } else if (dateValue instanceof Object && 'year' in dateValue && 'month' in dateValue && 'day' in dateValue) {
         return dateValue;
