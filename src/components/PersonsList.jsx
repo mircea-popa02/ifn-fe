@@ -27,8 +27,7 @@ import ClientForm from "./ClientForm";
 import SmockInfoIcon from "./SmockInfoIcon";
 import { ToastQueue } from "@react-spectrum/toast";
 import Pagination from "./Pagination";
-
-const API_URL = process.env.REACT_APP_API_URL;
+import { API_URL } from "../services/config";
 
 const PersonsList = () => {
   const [persons, setPersons] = useState([]);

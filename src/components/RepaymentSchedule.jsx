@@ -3,8 +3,7 @@ import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import "./RepaymentSchedule.css";
 import { TableView, View, TableHeader, Column, TableBody, Row, Cell, Heading, TagGroup, Item } from "@adobe/react-spectrum";
-
-const API_URL = process.env.REACT_APP_API_URL;
+import { API_URL } from "../services/config";
 
 const RepaymentSchedule = () => {
   const { contractNumber } = useParams();

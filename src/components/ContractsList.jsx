@@ -25,8 +25,7 @@ import {
 import ContractForm from "./ContractForm";
 import SmockInfoIcon from "./SmockInfoIcon";
 import { ToastQueue } from "@react-spectrum/toast";
-
-const API_URL = process.env.REACT_APP_API_URL;
+import { API_URL } from "../services/config";
 
 const ContractsList = () => {
   const [contracts, setContracts] = useState([]);

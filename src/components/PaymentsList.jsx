@@ -25,8 +25,7 @@ import PaymentForm from "./PaymentForm";
 import { ToastQueue } from "@react-spectrum/toast";
 import Pagination from "./Pagination"; // Import the custom Pagination component
 import './PaymentsList.css';
-
-const API_URL = process.env.REACT_APP_API_URL;
+import { API_URL } from "../services/config";
 
 const PaymentsList = () => {
   const [payments, setPayments] = useState([]);

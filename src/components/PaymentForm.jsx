@@ -9,8 +9,7 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { ToastQueue } from "@react-spectrum/toast";
 import { formatDateISO8601, normalizeDateValue } from "../services/Utils";
-
-const API_URL = process.env.REACT_APP_API_URL;
+import { API_URL } from "../services/config";
 
 const PaymentForm = ({
   close,

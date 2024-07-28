@@ -10,7 +10,7 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { ToastQueue } from "@react-spectrum/toast";
 
-const API_URL = process.env.REACT_APP_API_URL;
+import { API_URL } from "../services/config";
 
 const ContractForm = ({
   close,

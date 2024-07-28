@@ -9,7 +9,7 @@ import {
   View,
 } from "@adobe/react-spectrum";
 
-const API_URL = process.env.REACT_APP_API_URL;
+import { API_URL } from "../services/config";
 
 const Login = () => {
   const [username, setUsername] = useState("");
