@@ -13,10 +13,10 @@ import { ToastQueue } from "@react-spectrum/toast";
 const ContractForm = ({
   close,
   onContractAdded,
-  persons,
   initialValues = {},
   isUpdate = false,
 }) => {
+  const [clients, setClients] = useState([]);
   const [formData, setFormData] = useState({
     contract_number: "",
     date: "",
@@ -35,37 +35,20 @@ const ContractForm = ({
     indebted: "",
   });
 
-  const [filteredPersons, setFilteredPersons] = useState(persons);
-  const [debtorFilters, setDebtorFilters] = useState(
-    persons.map(() => persons)
-  );
-  const [debtorInputValues, setDebtorInputValues] = useState(["", "", "", ""]);
   const { token } = useAuth();
-
-  useEffect(() => {
-    setFilteredPersons(persons);
-    setDebtorFilters(persons.map(() => persons));
-  }, [persons]);
 
   useEffect(() => {
     if (isUpdate && initialValues) {
       setFormData(initialValues);
     }
-  }, [initialValues, isUpdate]);
+    fetchPersons();
+  }, [initialValues, isUpdate, token]);
 
   const handleSave = async () => {
     try {
-      const indebtedPerson = persons.find(
-        (person) => person.name === formData.indebted
-      );
-      if (!indebtedPerson) {
-        console.error("Invalid indebted person selected");
-        return;
-      }
-
       const url = isUpdate
-        ? `http://localhost:5000/contract/${formData.contract_number}`
-        : `http://localhost:5000/contract/${indebtedPerson.member_id}`;
+        ? `https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/contract/${formData.contract_number}`
+        : `https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/contract/${formData.indebted}`;
 
       const method = isUpdate ? "PUT" : "POST";
 
@@ -109,61 +92,36 @@ const ContractForm = ({
     }
   };
 
+  const fetchPersons = async () => {
+    if (!token) {
+      console.error("Token is not available");
+      return;
+    }
+
+    try {
+      const response = await fetch("https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/clients", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log("Response:", response);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to fetch clients");
+      }
+      const data = await response.json();
+      setClients(data);
+    } catch (error) {
+      console.error("Error fetching clients:", error);
+    }
+  };
+
   const handleInputChange = (key, value) => {
     setFormData((prevData) => ({
       ...prevData,
       [key]: value,
     }));
-  };
-
-  const handleDebtorChange = (index, key) => {
-    setFormData((prevData) => {
-      const newDebtors = [...prevData.debtors];
-      const debtorPerson = persons.find((person) => person._id.$oid === key);
-      if (debtorPerson) {
-        newDebtors[index] = debtorPerson.member_id;
-      } else {
-        newDebtors[index] = "";
-      }
-      return { ...prevData, debtors: newDebtors };
-    });
-    setDebtorInputValues((prevValues) => {
-      const newValues = [...prevValues];
-      const debtorPerson = persons.find((person) => person._id.$oid === key);
-      if (debtorPerson) {
-        newValues[index] = debtorPerson.name;
-      } else {
-        newValues[index] = "";
-      }
-      return newValues;
-    });
-  };
-
-  const handleFilterChange = (value) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      indebted: value,
-    }));
-    setFilteredPersons(
-      persons.filter((person) =>
-        person.name.toLowerCase().includes(value.toLowerCase())
-      )
-    );
-  };
-
-  const handleDebtorFilterChange = (index, value) => {
-    setDebtorFilters((prevFilters) => {
-      const newFilters = [...prevFilters];
-      newFilters[index] = persons.filter((person) =>
-        person.name.toLowerCase().includes(value.toLowerCase())
-      );
-      return newFilters;
-    });
-    setDebtorInputValues((prevValues) => {
-      const newValues = [...prevValues];
-      newValues[index] = value;
-      return newValues;
-    });
   };
 
   return (
@@ -255,33 +213,31 @@ const ContractForm = ({
         value={formData.execution_date}
         onChange={(value) => handleInputChange("execution_date", value)}
       />
-      <ComboBox
-        label="Indebted"
-        items={filteredPersons}
-        inputValue={formData.indebted}
-        onInputChange={handleFilterChange}
-        onSelectionChange={(key) => handleInputChange("indebted", key)}
-      >
-        {(item) => <Item key={item._id.$oid}>{item.name}</Item>}
-      </ComboBox>
-      {[0, 1, 2, 3].map((index) => (
+
+      {/* 4 comboboxes with clients[0..n].name as options */}
+      {formData.debtors.map((debtor, index) => (
         <ComboBox
           key={index}
           label={`Debtor ${index + 1}`}
-          items={debtorFilters[index]}
-          inputValue={debtorInputValues[index]}
-          onInputChange={(value) => handleDebtorFilterChange(index, value)}
-          onSelectionChange={(key) => handleDebtorChange(index, key)}
+          defaultItems={clients}
+          defaultInputValue={debtor}
+          selectedKey={debtor}
+          onSelectionChange={(key) => {
+            const newDebtors = [...formData.debtors];
+            newDebtors[index] = key;
+            handleInputChange("debtors", newDebtors);
+          }}
         >
-          {(item) => <Item key={item._id.$oid}>{item.name}</Item>}
+          {(item) => <Item key={item.member_id}>{item.name}</Item>}
         </ComboBox>
       ))}
+
       <ButtonGroup>
         <Button variant="cta" onPress={handleSave}>
-          {isUpdate ? "Modifica Contract" : "Adauga Contract"}
+          {isUpdate ? "Update Contract" : "Add Contract"}
         </Button>
         <Button variant="secondary" onPress={close}>
-          Inchide
+          Close
         </Button>
       </ButtonGroup>
     </Form>

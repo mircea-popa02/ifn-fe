@@ -12,7 +12,7 @@ const Receipt = () => {
 
   const fetchPayment = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/payments/search/${payment_id}`, {
+      const response = await fetch(`https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/payments/search/${payment_id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -35,7 +35,7 @@ const Receipt = () => {
 
   const fetchClient = async (member_id) => {
     try {
-      const response = await fetch(`http://localhost:5000/client/id/${member_id}`, {
+      const response = await fetch(`https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/client/id/${member_id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -56,7 +56,7 @@ const Receipt = () => {
 
   const fetchContract = async (contract_id) => {
     try {
-      const response = await fetch(`http://localhost:5000/contract/id/${contract_id}`, {
+      const response = await fetch(`https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/contract/id/${contract_id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

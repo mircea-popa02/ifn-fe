@@ -41,7 +41,7 @@ const PersonsList = () => {
 
   const fetchPersons = async (page = 1, limit = 10, name = "") => {
     setLoading(true); // Start loading
-    const url = `http://localhost:5000/clients/search?page=${page}&limit=${limit}&name=${name}`;
+    const url = `https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/clients/search?page=${page}&limit=${limit}&name=${name}`;
     console.log("Fetching URL:", url); // Log the URL to ensure correct parameters
     try {
       const response = await fetch(url, {
@@ -71,7 +71,7 @@ const PersonsList = () => {
 
   const handleDelete = async (member_id) => {
     try {
-      const response = await fetch(`http://localhost:5000/clients/${member_id}`, {
+      const response = await fetch(`https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/clients/${member_id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

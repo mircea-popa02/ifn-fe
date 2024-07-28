@@ -45,7 +45,7 @@ const PaymentsList = () => {
       const start = startDate ? new Date(startDate).toISOString() : "";
       const end = endDate ? new Date(endDate).toISOString() : "";
       const response = await fetch(
-        `http://localhost:5000/payments/search/date?start_date=${start}&end_date=${end}&page=${page}&limit=${limit}`,
+        `https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/payments/search/date?start_date=${start}&end_date=${end}&page=${page}&limit=${limit}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -77,7 +77,7 @@ const PaymentsList = () => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `http://localhost:5000/payments/${payment_id}`,
+        `https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/payments/${payment_id}`,
         {
           method: "DELETE",
           headers: {
@@ -141,7 +141,6 @@ const PaymentsList = () => {
         <br />
         <Button variant="cta" onPress={() => filterPayments(startDate, endDate, currentPage, limit)}>Cauta</Button>
       </div>
-      {/* display start date and end date in nice format */}
       <Pagination
         page={currentPage}
         totalPages={totalPages}

@@ -8,7 +8,7 @@ import {
 } from "@adobe/react-spectrum";
 import { useAuth } from "../../context/AuthContext";
 import { ToastQueue } from "@react-spectrum/toast";
-import { parseDate } from "@internationalized/date";
+import { formatDateISO8601, normalizeDateValue } from "../services/Utils";
 
 const PaymentForm = ({
   close,
@@ -17,40 +17,45 @@ const PaymentForm = ({
   isUpdate = false,
 }) => {
   const { token } = useAuth();
-  const [date, setDate] = useState("");
   const [formData, setFormData] = useState({
     member_id: "",
     value: "",
-    date: date,
+    date: ""
   });
 
   useEffect(() => {
+    console.log("Initial values:", initialValues);
     if (isUpdate && initialValues) {
+      console.log("Initial values:", initialValues);
+      initialValues.date = normalizeDateValue(initialValues.date.$date);
       setFormData(initialValues);
     }
   }, [initialValues, isUpdate]);
 
   const handleSave = async () => {
+    const submissionData = {
+      ...formData,
+      date: { $date: formatDateISO8601(formData.date) },
+    };
+
     try {
       const url = isUpdate
-        ? `http://localhost:5000/payments/${formData._id.$oid}`
-        : "http://127.0.0.1:5000/payments/";
-      formData.value = parseInt(formData.value, 10);
-      // formData.date = formatDate(formData.date);
-      const dataToSend = { ...formData };
-      dataToSend.date = formatDate(dataToSend.date);
-      console.log(dataToSend);
+        ? `https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/payments/${formData._id.$oid}`
+        : "https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/payments/";
 
-      if (dataToSend._id) {
-        delete dataToSend._id;
+      formData.value = parseFloat(formData.value);
+
+      if (submissionData._id) {
+        delete submissionData._id;
       }
+
       const response = await fetch(url, {
         method: isUpdate ? "PUT" : "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(dataToSend),
+        body: JSON.stringify(submissionData),
       });
 
       if (!response.ok) {
@@ -97,7 +102,6 @@ const PaymentForm = ({
       />
       <DatePicker
         label="Data"
-        value={formData.date}
         onChange={(value) => handleInputChange("date", value)}
         isRequired
       />

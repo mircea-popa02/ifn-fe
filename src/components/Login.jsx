@@ -19,7 +19,7 @@ const Login = () => {
     e.preventDefault();
     try {
       console.log(username, password);
-      const response = await fetch("http://localhost:5000/auth/login", {
+      const response = await fetch("https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

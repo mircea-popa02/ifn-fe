@@ -33,14 +33,9 @@ const ContractsList = () => {
   const [dialog, setDialog] = useState(null);
   const [selectedContract, setSelectedContract] = useState(null);
 
-  const [contractNumberSearchText, setContractNumberSearchText] = useState("");
-  const [contractNameSearchText, setContractNameSearchText] = useState("");
-  const [indebtedNumberSearchText, setIndebtedNumberSearchText] = useState("");
-  const [indebtedNameSearchText, setIndebtedNameSearchText] = useState("");
-
   const fetchContracts = async () => {
     try {
-      const response = await fetch("http://localhost:5000/contract/", {
+      const response = await fetch("https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/contracts/", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -57,40 +52,17 @@ const ContractsList = () => {
     }
   };
 
-  const fetchPersons = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/client/", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to fetch persons");
-      }
-      const data = await response.json();
-      setPersons(data);
-    } catch (error) {
-      console.error("Error fetching persons:", error);
-    }
-  };
-
   useEffect(() => {
     if (token) {
       fetchContracts();
-      fetchPersons();
     }
   }, [token]);
 
-  const getPersonDetails = (personId) => {
-    const person = persons.find((p) => p._id.$oid === personId);
-    return person ? person : { name: "", member_id: "" };
-  };
 
   const handleDelete = async (contract_number) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/contract/${contract_number}`,
+        `https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/contracts/${contract_number}`,
         {
           method: "DELETE",
           headers: {
@@ -110,35 +82,6 @@ const ContractsList = () => {
     }
   };
 
-  const filteredContracts = contracts.filter((contract) => {
-    const person = getPersonDetails(contract.member_id.$oid);
-    const matchesContractNumber =
-      !contractNumberSearchText ||
-      contract.contract_number
-        .toLowerCase()
-        .includes(contractNumberSearchText.toLowerCase());
-    const matchesContractName =
-      !contractNameSearchText ||
-      contract.contract_number
-        .toLowerCase()
-        .includes(contractNameSearchText.toLowerCase());
-    const matchesIndebtedNumber =
-      !indebtedNumberSearchText ||
-      person.member_id
-        .toLowerCase()
-        .includes(indebtedNumberSearchText.toLowerCase());
-    const matchesIndebtedName =
-      !indebtedNameSearchText ||
-      person.name.toLowerCase().includes(indebtedNameSearchText.toLowerCase());
-
-    return (
-      matchesContractNumber &&
-      matchesContractName &&
-      matchesIndebtedNumber &&
-      matchesIndebtedName
-    );
-  });
-
   return (
     <div>
       <Header UNSAFE_className="home-header">
@@ -152,29 +95,14 @@ const ContractsList = () => {
                 <ContractForm
                   close={close}
                   onContractAdded={fetchContracts}
-                  persons={persons}
+                  initialValues={null}
+                  isUpdate={false}
                 />
               </Content>
             </Dialog>
           )}
         </DialogTrigger>
       </Header>
-      <SearchField
-        label="Cauta dupa numarul contractului"
-        onChange={setContractNumberSearchText}
-      />
-      <SearchField
-        label="Cauta dupa numele contractului"
-        onChange={setContractNameSearchText}
-      />
-      <SearchField
-        label="Cauta dupa numarul membrului"
-        onChange={setIndebtedNumberSearchText}
-      />
-      <SearchField
-        label="Cauta dupa numele membrului"
-        onChange={setIndebtedNameSearchText}
-      />
       <Flex height="size-8000" width="100%" direction="column" gap="size-150">
         <TableView aria-label="Contracts table">
           <TableHeader>
@@ -185,7 +113,7 @@ const ContractsList = () => {
             <Column>Actiuni</Column>
           </TableHeader>
           <TableBody>
-            {filteredContracts.map((contract) => {
+            {contracts.map((contract) => {
               const person = getPersonDetails(contract.member_id.$oid);
               return (
                 <Row key={contract._id.$oid}>
@@ -295,7 +223,6 @@ const ContractsList = () => {
                   close={() => setDialog(null)}
                   onContractAdded={fetchContracts}
                   initialValues={selectedContract}
-                  persons={persons}
                   isUpdate={true}
                 />
               </Content>

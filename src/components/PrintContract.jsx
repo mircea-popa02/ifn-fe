@@ -13,7 +13,7 @@ const PrintContract = () => {
 
   const fetchContracts = async () => {
     try {
-      const response = await fetch("http://localhost:5000/contract/", {
+      const response = await fetch("https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/contract/", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -42,7 +42,7 @@ const PrintContract = () => {
 
   const fetchPersons = async () => {
     try {
-      const response = await fetch("http://localhost:5000/client/", {
+      const response = await fetch("https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/client/", {
         headers: {
           Authorization: `Bearer ${token}`,
         },

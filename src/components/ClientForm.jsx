@@ -50,8 +50,8 @@ const ClientForm = ({
 
     try {
       const url = isUpdate
-        ? `http://localhost:5000/clients/${formData.member_id}`
-        : "http://localhost:5000/clients/";
+        ? `https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/clients/${formData.member_id}`
+        : "https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/clients/";
 
       const method = isUpdate ? "PUT" : "POST";
 
