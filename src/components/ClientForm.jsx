@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Form, TextField, Button, ButtonGroup } from "@adobe/react-spectrum";
 import { useAuth } from "../../context/AuthContext";
+import { Form, TextField, Button, ButtonGroup, DateField } from "@adobe/react-spectrum";
 import { ToastQueue } from "@react-spectrum/toast";
+import { formatDateISO8601, normalizeDateValue } from "../services/Utils";
 
 const ClientForm = ({
   close,
@@ -31,23 +32,33 @@ const ClientForm = ({
 
   useEffect(() => {
     if (isUpdate && initialValues) {
-      setFormData(initialValues);
+      const updatedInitialValues = {
+        ...initialValues,
+        provided_on: normalizeDateValue(initialValues.provided_on),
+        expires_on: normalizeDateValue(initialValues.expires_on),
+      };
+      setFormData(updatedInitialValues);
     }
   }, [initialValues, isUpdate]);
 
   const { token } = useAuth();
 
   const handleSave = async () => {
+    const submissionData = {
+      ...formData,
+      expires_on: formatDateISO8601(formData.expires_on),
+      provided_on: formatDateISO8601(formData.provided_on),
+    };
+
     try {
       const url = isUpdate
-        ? `http://localhost:5000/client/${formData.member_id}`
-        : "http://localhost:5000/client/";
+        ? `http://localhost:5000/clients/${formData.member_id}`
+        : "http://localhost:5000/clients/";
 
       const method = isUpdate ? "PUT" : "POST";
 
-      const dataToSend = { ...formData };
-      if (dataToSend._id) {
-        delete dataToSend._id;
+      if (submissionData._id) {
+        delete submissionData._id;
       }
 
       const response = await fetch(url, {
@@ -56,17 +67,20 @@ const ClientForm = ({
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(submissionData),
       });
       if (response.ok) {
         onClientAdded();
+        ToastQueue.positive("Client adaugat cu succes", { timeout: 3000 });
         close();
       } else {
         const errorData = await response.json();
         console.error("Failed to save client:", errorData.message);
+        ToastQueue.negative("Eroare la salvarea clientului", { timeout: 3000 });
       }
     } catch (error) {
       console.error("Error saving client:", error);
+      ToastQueue.negative("Eroare la salvarea clientului", { timeout: 3000 });
     }
   };
 
@@ -132,14 +146,16 @@ const ClientForm = ({
         value={formData.provided_by}
         onChange={(value) => handleInputChange("provided_by", value)}
       />
-      <TextField
+      <DateField
         label="Provided On"
-        value={formData.provided_on}
+        name="provided_on"
+        value={normalizeDateValue(formData.provided_on)}
         onChange={(value) => handleInputChange("provided_on", value)}
       />
-      <TextField
+      <DateField
         label="Expires On"
-        value={formData.expires_on}
+        name="expires_on"
+        value={normalizeDateValue(formData.expires_on)}
         onChange={(value) => handleInputChange("expires_on", value)}
       />
       <TextField
@@ -171,7 +187,6 @@ const ClientForm = ({
         <Button
           variant="cta"
           onPress={() => {
-            ToastQueue.positive("Actiune incheiata cu succes!");
             handleSave();
           }}
         >

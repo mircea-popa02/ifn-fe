@@ -20,172 +20,192 @@ import {
   DialogContainer,
   SearchField,
   ButtonGroup,
+  ProgressCircle
 } from "@adobe/react-spectrum";
 import ClientForm from "./ClientForm";
 import SmockInfoIcon from "./SmockInfoIcon";
 import { ToastQueue } from "@react-spectrum/toast";
+import Pagination from "./Pagination";
 
 const MembersList = () => {
-  const [persons, setPersons] = useState([]);
+  const [members, setMembers] = useState([]);
   const { token } = useAuth();
   const [dialog, setDialog] = useState(null);
-  const [selectedPerson, setSelectedPerson] = useState(null);
+  const [selectedMember, setSelectedMember] = useState(null);
   const [nameSearchText, setNameSearchText] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [loading, setLoading] = useState(false);
 
-  const fetchPersons = async () => {
+  const fetchMembers = async (page = 1, limit = 10, name = "") => {
+    setLoading(true);
+    const url = `http://localhost:5000/clients/search?page=${page}&limit=${limit}&name=${name}`;
     try {
-      const response = await fetch("http://localhost:5000/client/", {
+      const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to fetch persons");
+        throw new Error(errorData.msg || "Failed to fetch members");
       }
       const data = await response.json();
-      setPersons(data);
+      const membersWithContract = data.clients.filter(member => member.contract);
+      setMembers(membersWithContract);
+      setTotalPages(Math.ceil(data.total_clients / limit));
     } catch (error) {
-      console.error("Error fetching persons:", error);
+      console.error("Error fetching members:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     if (token) {
-      fetchPersons();
+      fetchMembers(currentPage, limit, nameSearchText);
     }
-  }, [token]);
+  }, [token, currentPage, limit, nameSearchText]);
 
   const handleDelete = async (member_id) => {
     try {
-      const response = await fetch(
-        `http://localhost:5000/client/${member_id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`http://localhost:5000/clients/${member_id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (response.ok) {
-        fetchPersons();
+        fetchMembers(currentPage, limit, nameSearchText);
       } else {
         const errorData = await response.json();
-        console.error("Failed to delete client:", errorData.message);
+        console.error("Failed to delete member:", errorData.message);
       }
     } catch (error) {
-      console.error("Error deleting client:", error);
+      console.error("Error deleting member:", error);
     }
   };
 
-  let filteredPersons = persons.filter((person) => {
-    return (
-      person.contract &&
-      person.name.toLowerCase().includes(nameSearchText.toLowerCase())
-    );
-  });
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
 
   return (
     <div>
       <Header UNSAFE_className="home-header">
         <h1>Membri</h1>
       </Header>
-      <SearchField label="Cauta dupa nume" onChange={setNameSearchText} />
+
+      <SearchField label="Cauta dupa nume" onChange={setNameSearchText} value={nameSearchText} />
+
+      <Pagination
+        page={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
+      <br />
+      <Divider size="S" />
+      <br />
       <Flex height="size-8000" width="100%" direction="column" gap="size-150">
-        <TableView aria-label="Members table">
-          <TableHeader>
-            <Column>ID Membru</Column>
-            <Column>Nume</Column>
-            <Column>Oras</Column>
-            <Column>Actiuni</Column>
-          </TableHeader>
-          <TableBody>
-            {filteredPersons.map((person) => (
-              <Row key={person._id.$oid}>
-                <Cell>{person.member_id}</Cell>
-                <Cell>{person.name}</Cell>
-                <Cell>{person.city}</Cell>
-                <Cell>
-                  <ActionButton
-                    onPress={() => {
-                      setSelectedPerson(person);
-                      setDialog("info");
-                    }}
-                  >
-                    <SmockInfoIcon />
-                  </ActionButton>
-                  <ActionMenu
-                    onAction={(key) => {
-                      setSelectedPerson(person);
-                      if (key === "modifica") setDialog("modifica");
-                      if (key === "sterge") setDialog("sterge");
-                    }}
-                  >
-                    <Item key="modifica">Modifica</Item>
-                    <Item key="sterge">Sterge</Item>
-                  </ActionMenu>
-                </Cell>
-              </Row>
-            ))}
-          </TableBody>
-        </TableView>
+        {loading ? (
+          <ProgressCircle aria-label="Loading…" isIndeterminate />
+        ) : (
+          <TableView aria-label="Members table">
+            <TableHeader>
+              <Column>ID Membru</Column>
+              <Column>Nume</Column>
+              <Column>Oras</Column>
+              <Column>Actiuni</Column>
+            </TableHeader>
+            <TableBody>
+              {members.map((member) => (
+                <Row key={member._id.$oid}>
+                  <Cell>{member.member_id}</Cell>
+                  <Cell>{member.name}</Cell>
+                  <Cell>{member.city}</Cell>
+                  <Cell>
+                    <ActionButton
+                      onPress={() => {
+                        setSelectedMember(member);
+                        setDialog("info");
+                      }}
+                    >
+                      <SmockInfoIcon />
+                    </ActionButton>
+                    <ActionMenu
+                      onAction={(key) => {
+                        setSelectedMember(member);
+                        if (key === "modifica") setDialog("modifica");
+                        if (key === "sterge") setDialog("sterge");
+                      }}
+                    >
+                      <Item key="modifica">Modifica</Item>
+                      <Item key="sterge">Sterge</Item>
+                    </ActionMenu>
+                  </Cell>
+                </Row>
+              ))}
+            </TableBody>
+          </TableView>
+        )}
       </Flex>
 
       {dialog && (
         <DialogContainer onDismiss={() => setDialog(null)}>
           {dialog === "info" && (
             <Dialog>
-              <Heading>Detalii persoana</Heading>
+              <Heading>Detalii membru</Heading>
               <Divider />
               <Content UNSAFE_className="modal">
                 <p>
-                  <strong>Adresa:</strong> {selectedPerson.address}
+                  <strong>Adresa:</strong> {selectedMember.address}
                 </p>
                 <p>
                   <strong>Adresa corespondenta:</strong>{" "}
-                  {selectedPerson.corespondence_address}
+                  {selectedMember.corespondence_address}
                 </p>
                 <p>
-                  <strong>Oras:</strong> {selectedPerson.city}
+                  <strong>Oras:</strong> {selectedMember.city}
                 </p>
                 <p>
-                  <strong>Judet:</strong> {selectedPerson.county}
+                  <strong>Judet:</strong> {selectedMember.county}
                 </p>
                 <p>
                   <strong>Numar CI:</strong>{" "}
-                  {selectedPerson.identity_card_number}
+                  {selectedMember.identity_card_number}
                 </p>
                 <p>
                   <strong>Serie CI:</strong>{" "}
-                  {selectedPerson.identity_card_series}
+                  {selectedMember.identity_card_series}
                 </p>
                 <p>
-                  <strong>CI eliberat de:</strong> {selectedPerson.provided_by}
+                  <strong>CI eliberat de:</strong> {selectedMember.provided_by}
                 </p>
                 <p>
                   <strong>CI eliberat la data de:</strong>{" "}
-                  {selectedPerson.provided_on}
+                  {selectedMember.provided_on}
                 </p>
                 <p>
                   <strong>CI expira la data de:</strong>{" "}
-                  {selectedPerson.expires_on}
+                  {selectedMember.expires_on}
                 </p>
                 <p>
-                  <strong>CNP:</strong> {selectedPerson.social_security_number}
+                  <strong>CNP:</strong> {selectedMember.social_security_number}
                 </p>
                 <p>
-                  <strong>Telefon servici:</strong> {selectedPerson.work_phone}
+                  <strong>Telefon servici:</strong> {selectedMember.work_phone}
                 </p>
                 <p>
                   <strong>Telefon personal:</strong>{" "}
-                  {selectedPerson.personal_phone}
+                  {selectedMember.personal_phone}
                 </p>
                 <p>
-                  <strong>Angajator:</strong> {selectedPerson.employer}
+                  <strong>Angajator:</strong> {selectedMember.employer}
                 </p>
                 <p>
                   <strong>Certificat venit:</strong>{" "}
-                  {selectedPerson.revenue_certificate}
+                  {selectedMember.revenue_certificate}
                 </p>
                 <Button onPress={() => setDialog(null)}>Inchide</Button>
               </Content>
@@ -193,12 +213,12 @@ const MembersList = () => {
           )}
           {dialog === "modifica" && (
             <Dialog>
-              <Heading>Modifica persoana</Heading>
+              <Heading>Modifica membru</Heading>
               <Content>
                 <ClientForm
                   close={() => setDialog(null)}
-                  onClientAdded={fetchPersons}
-                  initialValues={selectedPerson}
+                  onClientAdded={() => fetchMembers(currentPage, limit, nameSearchText)}
+                  initialValues={selectedMember}
                   isUpdate={true}
                 />
               </Content>
@@ -206,15 +226,15 @@ const MembersList = () => {
           )}
           {dialog === "sterge" && (
             <Dialog>
-              <Heading>Sterge persoana</Heading>
+              <Heading>Sterge membru</Heading>
               <Divider />
-              <Content>Esti sigur ca vrei sa stergi persoana?</Content>
+              <Content>Esti sigur ca vrei sa stergi membrul?</Content>
               <ButtonGroup>
                 <Button
                   variant="negative"
                   onPress={() => {
-                    handleDelete(selectedPerson.member_id);
-                    ToastQueue.positive("Persoana a fost stearsa!");
+                    handleDelete(selectedMember.member_id);
+                    ToastQueue.positive("Membru a fost sters!");
                     setDialog(null);
                   }}
                 >

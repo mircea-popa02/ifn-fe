@@ -59,7 +59,7 @@ const PersonsList = () => {
     } catch (error) {
       console.error("Error fetching persons:", error);
     } finally {
-      setLoading(false); // End loading
+      setLoading(false);
     }
   };
 
@@ -71,7 +71,7 @@ const PersonsList = () => {
 
   const handleDelete = async (member_id) => {
     try {
-      const response = await fetch(`http://localhost:5000/client/${member_id}`, {
+      const response = await fetch(`http://localhost:5000/clients/${member_id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -79,12 +79,15 @@ const PersonsList = () => {
       });
       if (response.ok) {
         fetchPersons(currentPage, limit, nameSearchText);
+        ToastQueue.positive("Persoana a fost stearsa!", { timeout: 3000 });
       } else {
         const errorData = await response.json();
         console.error("Failed to delete client:", errorData.message);
+        ToastQueue.negative("Eroare la stergerea persoanei", { timeout: 3000 });
       }
     } catch (error) {
       console.error("Error deleting client:", error);
+      ToastQueue.negative("Eroare la stergerea persoanei", { timeout: 3000 });
     }
   };
 
@@ -197,11 +200,11 @@ const PersonsList = () => {
                 </p>
                 <p>
                   <strong>CI eliberat la data de:</strong>{" "}
-                  {selectedPerson.provided_on}
+                  {selectedPerson.provided_on.$date}
                 </p>
                 <p>
                   <strong>CI expira la data de:</strong>{" "}
-                  {selectedPerson.expires_on}
+                  {selectedPerson.expires_on.$date}
                 </p>
                 <p>
                   <strong>CNP:</strong> {selectedPerson.social_security_number}
@@ -247,7 +250,6 @@ const PersonsList = () => {
                   variant="negative"
                   onPress={() => {
                     handleDelete(selectedPerson.member_id);
-                    ToastQueue.positive("Persoana a fost stearsa!");
                     setDialog(null);
                   }}
                 >

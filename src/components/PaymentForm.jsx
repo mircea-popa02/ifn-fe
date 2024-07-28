@@ -16,37 +16,13 @@ const PaymentForm = ({
   initialValues = {},
   isUpdate = false,
 }) => {
-  const formatDefaultDate = (date) => {
-    let month = String(date.getMonth() + 1);
-    let year = date.getFullYear();
-    let day = date.getDate().toString();
-
-    if (month.length < 2) {
-      month = "0" + month;
-    }
-    if (day.length < 2) {
-      day = "0" + day;
-    }
-
-    return `${year}-${month}-${day}`;
-  };
-
   const { token } = useAuth();
-  const [date, setDate] = useState(parseDate(formatDefaultDate(new Date())));
+  const [date, setDate] = useState("");
   const [formData, setFormData] = useState({
     member_id: "",
     value: "",
     date: date,
   });
-
-  const formatDate = (dateObj) => {
-    // const year = dateObj.year;
-    // const month = String(dateObj.month).padStart(2, "0");
-    // const day = String(dateObj.day).padStart(2, "0");
-
-    // return `${year}-${month}-${day}`;
-    return new Date(dateObj).toISOString();
-  };
 
   useEffect(() => {
     if (isUpdate && initialValues) {
