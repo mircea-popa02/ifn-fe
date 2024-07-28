@@ -26,6 +26,8 @@ import ContractForm from "./ContractForm";
 import SmockInfoIcon from "./SmockInfoIcon";
 import { ToastQueue } from "@react-spectrum/toast";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const ContractsList = () => {
   const [contracts, setContracts] = useState([]);
   const [persons, setPersons] = useState([]);
@@ -35,7 +37,7 @@ const ContractsList = () => {
 
   const fetchContracts = async () => {
     try {
-      const response = await fetch("https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/contracts/", {
+      const response = await fetch(`${API_URL}/contracts/`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -62,7 +64,7 @@ const ContractsList = () => {
   const handleDelete = async (contract_number) => {
     try {
       const response = await fetch(
-        `https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/contracts/${contract_number}`,
+        `${API_URL}/contracts/${contract_number}`,
         {
           method: "DELETE",
           headers: {

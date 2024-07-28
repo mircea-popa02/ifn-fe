@@ -4,6 +4,8 @@ import { Form, TextField, Button, ButtonGroup, DateField } from "@adobe/react-sp
 import { ToastQueue } from "@react-spectrum/toast";
 import { formatDateISO8601, normalizeDateValue } from "../services/Utils";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const ClientForm = ({
   close,
   onClientAdded,
@@ -50,8 +52,8 @@ const ClientForm = ({
 
     try {
       const url = isUpdate
-        ? `https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/clients/${formData.member_id}`
-        : "https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/clients/";
+        ? `${API_URL}/clients/${formData.member_id}`
+        : `${API_URL}/clients/`;
 
       const method = isUpdate ? "PUT" : "POST";
 

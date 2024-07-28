@@ -10,6 +10,8 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { ToastQueue } from "@react-spectrum/toast";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const ContractForm = ({
   close,
   onContractAdded,
@@ -47,8 +49,8 @@ const ContractForm = ({
   const handleSave = async () => {
     try {
       const url = isUpdate
-        ? `https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/contract/${formData.contract_number}`
-        : `https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/contract/${formData.indebted}`;
+        ? `${API_URL}/contract/${formData.contract_number}`
+        : `${API_URL}/contract/${formData.indebted}`;
 
       const method = isUpdate ? "PUT" : "POST";
 
@@ -99,7 +101,7 @@ const ContractForm = ({
     }
 
     try {
-      const response = await fetch("https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/clients", {
+      const response = await fetch(`${API_URL}/clients`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

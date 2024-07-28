@@ -9,6 +9,8 @@ import {
   View,
 } from "@adobe/react-spectrum";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -19,7 +21,7 @@ const Login = () => {
     e.preventDefault();
     try {
       console.log(username, password);
-      const response = await fetch("https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/auth/login", {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

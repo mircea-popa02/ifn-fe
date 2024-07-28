@@ -26,6 +26,8 @@ import { ToastQueue } from "@react-spectrum/toast";
 import Pagination from "./Pagination"; // Import the custom Pagination component
 import './PaymentsList.css';
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const PaymentsList = () => {
   const [payments, setPayments] = useState([]);
   const [selectedPayment, setSelectedPayment] = useState(null);
@@ -45,7 +47,7 @@ const PaymentsList = () => {
       const start = startDate ? new Date(startDate).toISOString() : "";
       const end = endDate ? new Date(endDate).toISOString() : "";
       const response = await fetch(
-        `https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/payments/search/date?start_date=${start}&end_date=${end}&page=${page}&limit=${limit}`,
+        `${API_URL}/payments/search/date?start_date=${start}&end_date=${end}&page=${page}&limit=${limit}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -77,7 +79,7 @@ const PaymentsList = () => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/payments/${payment_id}`,
+        `${API_URL}/payments/${payment_id}`,
         {
           method: "DELETE",
           headers: {

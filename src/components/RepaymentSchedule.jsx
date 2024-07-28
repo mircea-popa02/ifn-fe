@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import "./RepaymentSchedule.css";
-
 import { TableView, View, TableHeader, Column, TableBody, Row, Cell, Heading, TagGroup, Item } from "@adobe/react-spectrum";
+
+const API_URL = process.env.REACT_APP_API_URL;
 
 const RepaymentSchedule = () => {
   const { contractNumber } = useParams();
@@ -66,7 +67,7 @@ const RepaymentSchedule = () => {
 
   const fetchContracts = async () => {
     try {
-      const response = await fetch("https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/contract/", {
+      const response = await fetch(`${API_URL}/contract/`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

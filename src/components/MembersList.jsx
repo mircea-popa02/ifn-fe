@@ -27,6 +27,8 @@ import SmockInfoIcon from "./SmockInfoIcon";
 import { ToastQueue } from "@react-spectrum/toast";
 import Pagination from "./Pagination";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const MembersList = () => {
   const [members, setMembers] = useState([]);
   const { token } = useAuth();
@@ -40,7 +42,7 @@ const MembersList = () => {
 
   const fetchMembers = async (page = 1, limit = 10, name = "") => {
     setLoading(true);
-    const url = `https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/clients/search?page=${page}&limit=${limit}&name=${name}`;
+    const url = `${API_URL}/clients/search?page=${page}&limit=${limit}&name=${name}`;
     try {
       const response = await fetch(url, {
         headers: {
@@ -70,7 +72,7 @@ const MembersList = () => {
 
   const handleDelete = async (member_id) => {
     try {
-      const response = await fetch(`https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/clients/${member_id}`, {
+      const response = await fetch(`${API_URL}/clients/${member_id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

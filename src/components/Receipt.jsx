@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import "./Receipt.css";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const Receipt = () => {
   const { payment_id } = useParams();
   const { token } = useAuth();
@@ -12,7 +14,7 @@ const Receipt = () => {
 
   const fetchPayment = async () => {
     try {
-      const response = await fetch(`https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/payments/search/${payment_id}`, {
+      const response = await fetch(`${API_URL}/payments/search/${payment_id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -35,7 +37,7 @@ const Receipt = () => {
 
   const fetchClient = async (member_id) => {
     try {
-      const response = await fetch(`https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/client/id/${member_id}`, {
+      const response = await fetch(`${API_URL}/client/id/${member_id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -56,7 +58,7 @@ const Receipt = () => {
 
   const fetchContract = async (contract_id) => {
     try {
-      const response = await fetch(`https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/contract/id/${contract_id}`, {
+      const response = await fetch(`${API_URL}/contract/id/${contract_id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

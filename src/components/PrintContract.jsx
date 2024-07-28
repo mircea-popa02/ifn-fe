@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import "./PrintContract.css";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const PrintContract = () => {
   const { contractNumber } = useParams();
   const [contract, setContract] = useState(null);
@@ -13,7 +15,7 @@ const PrintContract = () => {
 
   const fetchContracts = async () => {
     try {
-      const response = await fetch("https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/contract/", {
+      const response = await fetch(`${API_URL}/contract/`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -42,7 +44,7 @@ const PrintContract = () => {
 
   const fetchPersons = async () => {
     try {
-      const response = await fetch("https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/client/", {
+      const response = await fetch(`${API_URL}/client/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

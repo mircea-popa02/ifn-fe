@@ -10,6 +10,8 @@ import { useAuth } from "../../context/AuthContext";
 import { ToastQueue } from "@react-spectrum/toast";
 import { formatDateISO8601, normalizeDateValue } from "../services/Utils";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const PaymentForm = ({
   close,
   onPaymentAdded,
@@ -40,8 +42,8 @@ const PaymentForm = ({
 
     try {
       const url = isUpdate
-        ? `https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/payments/${formData._id.$oid}`
-        : "https://ifn-be-hwfo-master-g5ailnlqoq-wm.a.run.app/payments/";
+        ? `${API_URL}/payments/${formData._id.$oid}`
+        : `${API_URL}/payments/`;
 
       formData.value = parseFloat(formData.value);
 
