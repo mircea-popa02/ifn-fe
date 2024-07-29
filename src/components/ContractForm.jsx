@@ -49,8 +49,8 @@ const ContractForm = ({
   const handleSave = async () => {
     try {
       const url = isUpdate
-        ? `${API_URL}/contract/${formData.contract_number}`
-        : `${API_URL}/contract/${formData.indebted}`;
+        ? `${API_URL}/contracts/${formData.contract_number}`
+        : `${API_URL}/contracts/${formData.indebted}`;
 
       const method = isUpdate ? "PUT" : "POST";
 
@@ -84,7 +84,7 @@ const ContractForm = ({
         ToastQueue.positive(
           isUpdate
             ? "Contract updated successfully!"
-            : "Contract created successfully!"
+            : "Contract created successfully!", { timeout: 3000 }
         );
       } else {
         console.error("Failed to save contract:", responseBody);
@@ -145,6 +145,15 @@ const ContractForm = ({
         value={formData.contract_model}
         onChange={(value) => handleInputChange("contract_model", value)}
       />
+      <ComboBox
+        label="Indebted"
+        defaultItems={clients}
+        defaultInputValue={formData.indebted}
+        selectedKey={formData.indebted}
+        onSelectionChange={(key) => handleInputChange("indebted", key)}
+      >
+        {(item) => <Item key={item.member_id}>{item.name}</Item>}
+      </ComboBox>
       <TextField
         label="Agent"
         value={formData.agent}
