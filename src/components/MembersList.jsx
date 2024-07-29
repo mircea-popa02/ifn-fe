@@ -183,14 +183,14 @@ const MembersList = () => {
                 <p>
                   <strong>CI eliberat de:</strong> {selectedMember.provided_by}
                 </p>
-                <p>
+                {/* <p>
                   <strong>CI eliberat la data de:</strong>{" "}
                   {selectedMember.provided_on}
                 </p>
                 <p>
                   <strong>CI expira la data de:</strong>{" "}
                   {selectedMember.expires_on}
-                </p>
+                </p> */}
                 <p>
                   <strong>CNP:</strong> {selectedMember.social_security_number}
                 </p>
