@@ -133,11 +133,11 @@ const ContractsList = () => {
                         if (key === "modifica") setDialog("modifica");
                         if (key === "sterge") setDialog("sterge");
                         if (key === "grafic") {
-                          const url = `/contract/${contract.contract_number}/graficrambursare`;
+                          const url = `/contracts/${contract.contract_number}/graficrambursare`;
                           window.open(url, "_blank");
                         }
                         if (key === "print") {
-                          const url = `/contract/${contract.contract_number}/printcontract`;
+                          const url = `/contracts/${contract.contract_number}/printcontract`;
                           window.open(url, "_blank");
                         }
                       }}

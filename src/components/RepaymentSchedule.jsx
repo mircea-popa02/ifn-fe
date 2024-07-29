@@ -66,7 +66,7 @@ const RepaymentSchedule = () => {
 
   const fetchContracts = async () => {
     try {
-      const response = await fetch(`${API_URL}/contract/`, {
+      const response = await fetch(`${API_URL}/contracts/`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

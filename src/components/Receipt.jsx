@@ -57,7 +57,7 @@ const Receipt = () => {
 
   const fetchContract = async (contract_id) => {
     try {
-      const response = await fetch(`${API_URL}/contract/id/${contract_id}`, {
+      const response = await fetch(`${API_URL}/contracts/id/${contract_id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
