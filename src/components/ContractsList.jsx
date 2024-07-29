@@ -59,18 +59,14 @@ const ContractsList = () => {
     }
   }, [token]);
 
-
   const handleDelete = async (contract_number) => {
     try {
-      const response = await fetch(
-        `${API_URL}/contracts/${contract_number}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${API_URL}/contracts/${contract_number}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (response.ok) {
         fetchContracts();
         ToastQueue.positive("Contract a fost șters cu succes!");
@@ -115,7 +111,7 @@ const ContractsList = () => {
           </TableHeader>
           <TableBody>
             {contracts.map((contract) => {
-              const person = getPersonDetails(contract.member_id.$oid);
+              // const person = getPersonDetails(contract.member_id.$oid);
               return (
                 <Row key={contract._id.$oid}>
                   <Cell>{contract.contract_number}</Cell>
