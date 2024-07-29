@@ -101,7 +101,7 @@ const ContractForm = ({
     }
 
     try {
-      const response = await fetch(`${API_URL}/clients`, {
+      const response = await fetch(`${API_URL}/clients/all`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
