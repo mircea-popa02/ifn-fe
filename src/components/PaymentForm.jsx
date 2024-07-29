@@ -1,10 +1,12 @@
-import { React, useState, useEffect } from "react";
+import { React, useState, useEffect, useRef } from "react";
 import {
   Form,
   TextField,
   Button,
   ButtonGroup,
   DatePicker,
+  ComboBox,
+  Item
 } from "@adobe/react-spectrum";
 import { useAuth } from "../../context/AuthContext";
 import { ToastQueue } from "@react-spectrum/toast";
@@ -23,21 +25,27 @@ const PaymentForm = ({
     value: "",
     date: ""
   });
+  const [clients, setClients] = useState([]);
+  const clientsFetchedRef = useRef(false); // Ref to track if clients have been fetched
 
   useEffect(() => {
-    console.log("Initial values:", initialValues);
+    if (!clientsFetchedRef.current) {
+      fetchPersons();
+      clientsFetchedRef.current = true;
+    }
     if (isUpdate && initialValues) {
-      console.log("Initial values:", initialValues);
       initialValues.date = normalizeDateValue(initialValues.date.$date);
       setFormData(initialValues);
     }
-  }, [initialValues, isUpdate]);
+  }, [initialValues, isUpdate, token]);
 
   const handleSave = async () => {
     const submissionData = {
       ...formData,
       date: { $date: formatDateISO8601(formData.date) },
     };
+
+    console.log("submissionData", submissionData);
 
     try {
       const url = isUpdate
@@ -79,7 +87,33 @@ const PaymentForm = ({
     }
   };
 
+  const fetchPersons = async () => {
+    if (!token) {
+      console.error("Token is not available");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/clients/all`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        method: "GET",
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to fetch clients");
+      }
+      const data = await response.json();
+      setClients(data);
+    } catch (error) {
+      console.error("Error fetching clients:", error);
+    }
+  };
+
   const handleInputChange = (key, value) => {
+    console.log("key", key, "value", value);
     setFormData((prevData) => ({
       ...prevData,
       [key]: value,
@@ -88,13 +122,16 @@ const PaymentForm = ({
 
   return (
     <Form>
-      <TextField
-        label="Member ID"
-        value={formData.member_id}
-        onChange={(value) => handleInputChange("member_id", value)}
-        isRequired
-        isDisabled={isUpdate}
-      />
+        <ComboBox
+        key={clients}
+        label="Client"
+        defaultItems={clients}
+        defaultInputValue={formData.member_id}
+        selectedKey={formData.member_id}
+        onSelectionChange={(key) => handleInputChange("member_id", key)}
+      >
+        {(item) => <Item key={item.member_id}>{item.name}</Item>}
+      </ComboBox>
       <TextField
         label="Valoare"
         value={formData.value}
