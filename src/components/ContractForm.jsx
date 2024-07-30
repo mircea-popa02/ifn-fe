@@ -71,6 +71,7 @@ const ContractForm = ({
       }
 
       console.log("Data to send:", dataToSend);
+      dataToSend.debtors = dataToSend.debtors.filter((debtor) => debtor);
 
       const response = await fetch(url, {
         method: method,
