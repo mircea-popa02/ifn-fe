@@ -2,7 +2,18 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import "./RepaymentSchedule.css";
-import { TableView, View, TableHeader, Column, TableBody, Row, Cell, Heading, TagGroup, Item } from "@adobe/react-spectrum";
+import {
+  TableView,
+  View,
+  TableHeader,
+  Column,
+  TableBody,
+  Row,
+  Cell,
+  Heading,
+  TagGroup,
+  Item,
+} from "@adobe/react-spectrum";
 import { API_URL } from "../services/config";
 
 const RepaymentSchedule = () => {
@@ -27,16 +38,19 @@ const RepaymentSchedule = () => {
     // DD will always be contract.due_day
     const dates = [];
     const dueDay = parseInt(contract.due_day);
-    const date = new Date(contract.date);
+    const date = new Date(contract.date.$date);
     const year = date.getFullYear();
+    console.log(date, year, date.getMonth(), contract.months);
     const month = date.getMonth();
     for (let i = 0; i < contract.months; i++) {
       const newDate = new Date(year, month + i + 1, dueDay + 1);
       dates.push(newDate.toISOString().split("T")[0]);
+      console.log("aici");
+      console.log(dates);
     }
     console.log(dates);
     return dates;
-  }
+  };
 
   const computeInterestAndRate = (contract) => {
     const monthlyRate = contract.remunerative_interest / 12 / 100;
@@ -51,18 +65,18 @@ const RepaymentSchedule = () => {
       const rate = contract.rate - interest;
       value -= rate;
       interestRate.push({ interest, rate, value });
-      
     }
 
     // the last tuple will have value 0 and rate will be equal to the last value and interest will be contract.rate - last value
-    interestRate[contract.months - 1].rate = interestRate[contract.months - 2].value;
-    interestRate[contract.months - 1].interest = contract.rate - interestRate[contract.months - 1].rate
+    interestRate[contract.months - 1].rate =
+      interestRate[contract.months - 2].value;
+    interestRate[contract.months - 1].interest =
+      contract.rate - interestRate[contract.months - 1].rate;
     interestRate[contract.months - 1].value = 0;
 
     console.log(interestRate);
     return interestRate;
-  }
-
+  };
 
   const fetchContracts = async () => {
     try {
@@ -87,12 +101,12 @@ const RepaymentSchedule = () => {
       if (!foundContract) {
         throw new Error("Contract not found");
       }
-      setContract(foundContract)
-      setDates(createDatesArray(foundContract))
-      setInterestAndRate(computeInterestAndRate(foundContract))
+      setContract(foundContract);
+      setDates(createDatesArray(foundContract));
+      setInterestAndRate(computeInterestAndRate(foundContract));
     } catch (error) {
       console.error("Error fetching contracts:", error);
-      setError(error.message)
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -120,7 +134,7 @@ const RepaymentSchedule = () => {
             <strong>Număr contract: </strong> {contract.contract_number}
           </Item>
           <Item UNSAFE_className="chip">
-            <strong>Din data: </strong> {contract.date}
+            <strong>Din data: </strong> {contract.date.$date}
           </Item>
           <Item UNSAFE_className="chip">
             <strong>Model contract: </strong> {contract.contract_model}
@@ -135,7 +149,8 @@ const RepaymentSchedule = () => {
             <strong>Numarul de rate: </strong> {contract.months}
           </Item>
           <Item UNSAFE_className="chip">
-            <strong>Dobânda remunerativă: </strong> {contract.remunerative_interest}%
+            <strong>Dobânda remunerativă: </strong>{" "}
+            {contract.remunerative_interest}%
           </Item>
           <Item UNSAFE_className="chip">
             <strong>DAE: </strong> {contract.ear}%
@@ -153,7 +168,7 @@ const RepaymentSchedule = () => {
             <strong>Execuție: </strong> {contract.execution}
           </Item>
           <Item UNSAFE_className="chip">
-            <strong>Data execuției: </strong> {contract.execution_date}
+            <strong>Data execuției: </strong> {contract.execution_date.$date}
           </Item>
           <Item UNSAFE_className="chip">
             <strong>Datori: </strong> {contract.debtors.join(", ")}
@@ -174,7 +189,7 @@ const RepaymentSchedule = () => {
           <TableBody>
             <Row key={0}>
               <Cell>0</Cell>
-              <Cell>{contract.date}</Cell>
+              <Cell>{contract.date.$date}</Cell>
               <Cell>0.00</Cell>
               <Cell>0.00</Cell>
               <Cell>0.00</Cell>
