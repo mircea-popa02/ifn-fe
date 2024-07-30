@@ -17,7 +17,6 @@ import {
   Flex,
   ActionButton,
   ActionMenu,
-  SearchField,
   Item,
   DialogContainer,
   ButtonGroup,
@@ -29,10 +28,11 @@ import { API_URL } from "../services/config";
 
 const ContractsList = () => {
   const [contracts, setContracts] = useState([]);
-  const [persons, setPersons] = useState([]);
+  const [person, setPerson] = useState(null);
   const { token } = useAuth();
   const [dialog, setDialog] = useState(null);
   const [selectedContract, setSelectedContract] = useState(null);
+  const [debtors, setDebtors] = useState([]);
 
   const fetchContracts = async () => {
     try {
@@ -48,8 +48,56 @@ const ContractsList = () => {
       }
       const data = await response.json();
       setContracts(data);
+      console.log("Contracts:", data);
     } catch (error) {
       console.error("Error fetching contracts:", error);
+      ToastQueue.negative("Error fetching contracts", { timeout: 3000 });
+    }
+  };
+
+  const fetchDebtors = async (debtors) => {
+    // url: `${API_URL}/clients/list` with post and payload has member_ids array
+    // response: array of debtors
+    try {
+      const response = await fetch(`${API_URL}/clients/list`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          member_ids: debtors,
+        }),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to fetch debtors");
+      }
+      const data = await response.json();
+      setDebtors(data);
+    } catch (error) {
+      console.error("Error fetching debtors:", error);
+      ToastQueue.negative("Error fetching debtors", { timeout: 3000 });
+    }
+  };
+
+  const fetchPersonDetails = async (personId) => {
+    try {
+      const response = await fetch(`${API_URL}/clients/id/${personId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to fetch person details");
+      }
+      const data = await response.json();
+      setPerson(data);
+    } catch (error) {
+      console.error("Error fetching person details:", error);
+      ToastQueue.negative("Error fetching person details", { timeout: 3000 });
     }
   };
 
@@ -69,14 +117,25 @@ const ContractsList = () => {
       });
       if (response.ok) {
         fetchContracts();
-        ToastQueue.positive("Contract a fost șters cu succes!");
+        ToastQueue.positive("Contract a fost șters cu succes!", {
+          timeout: 3000,
+        });
       } else {
         const errorData = await response.json();
         console.error("Failed to delete contract:", errorData.message);
+        ToastQueue.negative("Failed to delete contract", { timeout: 3000 });
       }
     } catch (error) {
       console.error("Error deleting contract:", error);
+      ToastQueue.negative("Error deleting contract", { timeout: 3000 });
     }
+  };
+
+  const openInfoDialog = async (contract) => {
+    setSelectedContract(contract);
+    await fetchPersonDetails(contract.member_id.$oid);
+    await fetchDebtors(contract.debtors);
+    setDialog("info");
   };
 
   return (
@@ -111,7 +170,6 @@ const ContractsList = () => {
           </TableHeader>
           <TableBody>
             {contracts.map((contract) => {
-              // const person = getPersonDetails(contract.member_id.$oid);
               return (
                 <Row key={contract._id.$oid}>
                   <Cell>{contract.contract_number}</Cell>
@@ -120,10 +178,7 @@ const ContractsList = () => {
                   <Cell>{contract.value}</Cell>
                   <Cell>
                     <ActionButton
-                      onPress={() => {
-                        setSelectedContract(contract);
-                        setDialog("info");
-                      }}
+                      onPress={() => openInfoDialog(contract)}
                     >
                       <SmockInfoIcon />
                     </ActionButton>
@@ -166,8 +221,13 @@ const ContractsList = () => {
                   {selectedContract.contract_number}
                 </p>
                 <p>
-                  <strong>Data:</strong> {selectedContract.date}
+                  <strong>Data:</strong> {selectedContract.date.$date}
                 </p>
+                {person && (
+                  <p>
+                    <strong>Persoana:</strong> {person.name}
+                  </p>
+                )}
                 <p>
                   <strong>Model contract:</strong>{" "}
                   {selectedContract.contract_model}
@@ -179,18 +239,21 @@ const ContractsList = () => {
                   <strong>Valoare:</strong> {selectedContract.value}
                 </p>
                 <p>
+                  <strong>Rata:</strong> {selectedContract.rate}
+                </p>
+                <p>
                   <strong>Luni:</strong> {selectedContract.months}
                 </p>
                 <p>
                   <strong>Dobânda remunerativă:</strong>{" "}
-                  {selectedContract.remunerative_interest}
+                  {selectedContract.remunerative_interest}%
                 </p>
                 <p>
-                  <strong>EAR:</strong> {selectedContract.ear}
+                  <strong>DAE:</strong> {selectedContract.ear}%
                 </p>
                 <p>
                   <strong>Penalitate zilnică:</strong>{" "}
-                  {selectedContract.daily_penalty}
+                  {selectedContract.daily_penalty}%
                 </p>
                 <p>
                   <strong>Data scadentă:</strong> {selectedContract.due_day}
@@ -203,10 +266,11 @@ const ContractsList = () => {
                 </p>
                 <p>
                   <strong>Data execuției:</strong>{" "}
-                  {selectedContract.execution_date}
+                  {selectedContract.execution_date.$date}
                 </p>
                 <p>
-                  <strong>Datori:</strong> {selectedContract.debtors.join(", ")}
+                  <strong>Debitori:</strong>{" "}
+                  {debtors.map((debtor) => debtor.name).join(", ")}
                 </p>
                 <Button onPress={() => setDialog(null)}>Inchide</Button>
               </Content>

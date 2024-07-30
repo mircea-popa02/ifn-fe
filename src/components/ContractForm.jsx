@@ -6,9 +6,11 @@ import {
   ButtonGroup,
   ComboBox,
   Item,
+  DateField,
 } from "@adobe/react-spectrum";
 import { useAuth } from "../../context/AuthContext";
 import { ToastQueue } from "@react-spectrum/toast";
+import { formatDateISO8601, normalizeDateValue } from "../services/Utils";
 
 import { API_URL } from "../services/config";
 
@@ -41,12 +43,21 @@ const ContractForm = ({
 
   useEffect(() => {
     if (isUpdate && initialValues) {
+      console.log("Initial values:", initialValues);
+      initialValues.date = normalizeDateValue(initialValues.date?.$date);
+      initialValues.execution_date = normalizeDateValue(initialValues.execution_date?.$date);
       setFormData(initialValues);
     }
     fetchPersons();
   }, [initialValues, isUpdate, token]);
 
   const handleSave = async () => {
+    let dataToSend = {
+      ...formData,
+      date: { $date: formatDateISO8601(formData.date) },
+      execution_date: { $date: formatDateISO8601(formData.execution_date) },
+      value: parseInt(formData.value),
+    };
     let responseBody;
     try {
       const url = isUpdate
@@ -55,18 +66,11 @@ const ContractForm = ({
 
       const method = isUpdate ? "PUT" : "POST";
 
-      const dataToSend = {
-        ...formData,
-        debtors: formData.debtors.filter((item) => item),
-        value: parseInt(formData.value, 10),
-        months: parseInt(formData.months, 10),
-        remunerative_interest: parseInt(formData.remunerative_interest, 10),
-        ear: parseInt(formData.ear, 10),
-        daily_penalty: parseInt(formData.daily_penalty, 10),
-        due_day: parseInt(formData.due_day, 10),
-        execution: parseInt(formData.execution, 10),
-      };
-      delete dataToSend.indebted;
+      if (dataToSend._id) {
+        delete dataToSend._id;
+      }
+
+      console.log("Data to send:", dataToSend);
 
       const response = await fetch(url, {
         method: method,
@@ -149,8 +153,9 @@ const ContractForm = ({
         isRequired
         isDisabled={isUpdate}
       />
-      <TextField
+      <DateField
         label="Date"
+        name="date"
         value={formData.date}
         onChange={(value) => handleInputChange("date", value)}
       />
@@ -159,15 +164,6 @@ const ContractForm = ({
         value={formData.contract_model}
         onChange={(value) => handleInputChange("contract_model", value)}
       />
-      <ComboBox
-        label="Indebted"
-        defaultItems={clients}
-        defaultInputValue={formData.indebted}
-        selectedKey={formData.indebted}
-        onSelectionChange={(key) => handleInputChange("indebted", key)}
-      >
-        {(item) => <Item key={item.member_id}>{item.name}</Item>}
-      </ComboBox>
       <TextField
         label="Agent"
         value={formData.agent}
@@ -192,8 +188,7 @@ const ContractForm = ({
           { id: "43200", name: "43200" },
           { id: "45900", name: "45900" },
         ]}
-        defaultInputValue={formData.value}
-        selectedKey={formData.value}
+        inputValue={formData.value.toString()}
         onSelectionChange={(key) => handleInputChange("value", key)}
       >
         {(item) => <Item key={item.id}>{item.name}</Item>}
@@ -233,13 +228,12 @@ const ContractForm = ({
         value={formData.execution}
         onChange={(value) => handleInputChange("execution", value)}
       />
-      <TextField
+      <DateField
         label="Execution Date"
+        name="execution_date"
         value={formData.execution_date}
         onChange={(value) => handleInputChange("execution_date", value)}
       />
-
-      {/* 4 comboboxes with clients[0..n].name as options */}
       {formData.debtors.map((debtor, index) => (
         <ComboBox
           key={index}
