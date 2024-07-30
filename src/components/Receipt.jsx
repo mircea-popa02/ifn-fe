@@ -17,7 +17,7 @@ const Receipt = () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -53,7 +53,7 @@ const Receipt = () => {
     } catch (error) {
       console.error("Error fetching member:", error);
     }
-  }
+  };
 
   const fetchContract = async (contract_id) => {
     try {
@@ -71,16 +71,15 @@ const Receipt = () => {
       const data = await response.json();
       console.log(data);
       setContract(data);
-
     } catch (error) {
       console.error("Error fetching contract:", error);
     }
-  }
+  };
 
   useEffect(() => {
     console.log(payment_id);
     if (token) {
-      fetchPayment()
+      fetchPayment();
     }
   }, [token]);
 
@@ -102,7 +101,9 @@ const Receipt = () => {
           <div>
             <p>Seria: CAR</p>
             <p>CHITANTA Nr.: {payment.payment_id}</p>
-            <p>din data de: {new Date(payment?.date?.$date).toLocaleDateString()}</p>
+            <p>
+              din data de: {new Date(payment?.date?.$date).toLocaleDateString()}
+            </p>
           </div>
         </div>
         <div className="receipt-middle">
@@ -111,7 +112,7 @@ const Receipt = () => {
           <p>Suma de {payment.value} lei.</p>
           <p>
             Reprezentand Rambursare partiala imprumut conform contract nr.{" "}
-            {contract.contract_number} / {contract.date}
+            {contract.contract_number} / {contract?.date?.$date}
           </p>
         </div>
       </>
@@ -132,7 +133,9 @@ const Receipt = () => {
           <div>
             <p>Seria: CAR</p>
             <p>CHITANTA Nr.: {payment.value}</p>
-            <p>din data de: {new Date(payment?.date?.$date).toLocaleDateString()}</p>
+            <p>
+              din data de: {new Date(payment?.date?.$date).toLocaleDateString()}
+            </p>
           </div>
         </div>
         <div className="receipt-middle">
@@ -141,7 +144,7 @@ const Receipt = () => {
           <p>Suma de {payment.value} lei.</p>
           <p>
             Reprezentand Rambursare partiala imprumut conform contract nr.{" "}
-            {contract.contract_number} / {contract.date}
+            {contract.contract_number} / {contract?.date?.$date}
           </p>
         </div>
       </>
