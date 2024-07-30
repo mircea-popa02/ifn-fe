@@ -46,7 +46,7 @@ const PaymentsList = () => {
       const start = startDate ? new Date(startDate).toISOString() : "";
       const end = endDate ? new Date(endDate).toISOString() : "";
       const response = await fetch(
-        `${API_URL}/payments/search/date?start_date=${start}&end_date=${end}&page=${page}&limit=${limit}`,
+        `${API_URL}/payments/`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -58,13 +58,8 @@ const PaymentsList = () => {
         throw new Error(errorData.msg || "Failed to fetch payments");
       }
       const data = await response.json();
-
-      const formattedPayments = data.payments.map((payment) => ({
-        ...payment,
-        date: new Date(payment.date.$date).toLocaleDateString()
-      }));
-
-      setPayments(formattedPayments);
+      
+      setPayments(data.payments);
       setCurrentPage(data.page);
       setTotalPages(Math.ceil(data.total_payments / limit));
     } catch (error) {
@@ -86,14 +81,15 @@ const PaymentsList = () => {
           },
         }
       );
-      if (response.ok) {
-        filterPayments(startDate, endDate, currentPage, limit);
-        ToastQueue.positive("Plata a fost ștearsă cu succes!");
-      } else {
+      if (!response.ok) {
         const errorData = await response.json();
-        console.error("Failed to delete payment:", errorData.message);
+        console.error("Failed to delete payment:", errorData.msg);
+        ToastQueue.negative("Eroare la stergerea platii", { timeout: 3000 });
       }
-    } catch (error) {
+
+      filterPayments(startDate, endDate, currentPage, limit);
+    }
+    catch (error) {
       console.error("Error deleting payment:", error);
     } finally {
       setIsLoading(false);
@@ -172,7 +168,7 @@ const PaymentsList = () => {
                 <Cell>{payment.payment_id}</Cell>
                 <Cell>{payment.member_name}</Cell>
                 <Cell>{payment.value}</Cell>
-                <Cell>{payment.date}</Cell>
+                <Cell>{payment.date.$date}</Cell>
                 <Cell>
                   <ActionMenu
                     onAction={(key) => {

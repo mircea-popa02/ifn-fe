@@ -1,12 +1,12 @@
-import { React, useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Form,
   TextField,
   Button,
   ButtonGroup,
-  DatePicker,
   ComboBox,
-  Item
+  Item,
+  DateField,
 } from "@adobe/react-spectrum";
 import { useAuth } from "../../context/AuthContext";
 import { ToastQueue } from "@react-spectrum/toast";
@@ -23,21 +23,22 @@ const PaymentForm = ({
   const [formData, setFormData] = useState({
     member_id: "",
     value: "",
-    date: ""
+    date: "",
   });
   const [clients, setClients] = useState([]);
-  const clientsFetchedRef = useRef(false); // Ref to track if clients have been fetched
 
   useEffect(() => {
-    if (!clientsFetchedRef.current) {
-      fetchPersons();
-      clientsFetchedRef.current = true;
-    }
+    fetchPersons();
     if (isUpdate && initialValues) {
+      console.log("Initial values:", initialValues);
       initialValues.date = normalizeDateValue(initialValues.date.$date);
-      setFormData(initialValues);
+      setFormData({
+        ...initialValues,
+        member_id: initialValues.member_id.toString(),
+        value: initialValues.value.toString()
+      });
     }
-  }, [initialValues, isUpdate, token]);
+  }, [isUpdate]);
 
   const handleSave = async () => {
     const submissionData = {
@@ -57,6 +58,8 @@ const PaymentForm = ({
       if (submissionData._id) {
         delete submissionData._id;
       }
+
+      submissionData.value = parseFloat(submissionData.value);
 
       const response = await fetch(url, {
         method: isUpdate ? "PUT" : "POST",
@@ -105,7 +108,9 @@ const PaymentForm = ({
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to fetch clients");
       }
-      const data = await response.json();
+      let data = await response.json();
+      data = data.filter((client) => client.contract);
+      console.log("Clients data:", data);
       setClients(data);
     } catch (error) {
       console.error("Error fetching clients:", error);
@@ -122,26 +127,27 @@ const PaymentForm = ({
 
   return (
     <Form>
-        <ComboBox
-        key={clients}
+      <ComboBox
         label="Client"
         defaultItems={clients}
-        defaultInputValue={formData.member_id}
         selectedKey={formData.member_id}
         onSelectionChange={(key) => handleInputChange("member_id", key)}
       >
         {(item) => <Item key={item.member_id}>{item.name}</Item>}
       </ComboBox>
+
       <TextField
         label="Valoare"
         value={formData.value}
         onChange={(value) => handleInputChange("value", value)}
         isRequired
       />
-      <DatePicker
+      <DateField
         label="Data"
+        value={formData.date}
         onChange={(value) => handleInputChange("date", value)}
         isRequired
+        name="date"
       />
       <ButtonGroup>
         <Button variant="cta" onPress={handleSave}>
