@@ -125,7 +125,7 @@ const PaymentsList = () => {
           )}
         </DialogTrigger>
       </Header>
-      <div className="search-bar">
+      {/* <div className="search-bar">
         <DateRangePicker
           label="Cauta dupa data"
           startName="start_date"
@@ -135,9 +135,8 @@ const PaymentsList = () => {
             setEndDate(date.end);
           }}
         />
-        <br />
         <Button variant="cta" onPress={() => filterPayments(startDate, endDate, currentPage, limit)}>Cauta</Button>
-      </div>
+      </div> */}
       <Pagination
         page={currentPage}
         totalPages={totalPages}

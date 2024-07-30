@@ -160,6 +160,15 @@ const ContractForm = ({
         value={formData.date}
         onChange={(value) => handleInputChange("date", value)}
       />
+      <ComboBox
+          label="Indebted"
+          defaultItems={clients}
+          defaultInputValue={formData.indebted}
+          selectedKey={formData.indebted}
+          onSelectionChange={(key) => handleInputChange("indebted", key)}
+        >
+          {(item) => <Item key={item.member_id}>{item.name}</Item>}
+        </ComboBox>
       <TextField
         label="Contract Model"
         value={formData.contract_model}
