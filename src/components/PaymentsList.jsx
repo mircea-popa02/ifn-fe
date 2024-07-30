@@ -87,6 +87,7 @@ const PaymentsList = () => {
         ToastQueue.negative("Eroare la stergerea platii", { timeout: 3000 });
       }
 
+      ToastQueue.positive("Plata stearsa cu succes", { timeout: 3000 });
       filterPayments(startDate, endDate, currentPage, limit);
     }
     catch (error) {
@@ -134,7 +135,7 @@ const PaymentsList = () => {
             setStartDate(date.start);
             setEndDate(date.end);
           }}
-        />
+        />D
         <Button variant="cta" onPress={() => filterPayments(startDate, endDate, currentPage, limit)}>Cauta</Button>
       </div> */}
       <Pagination
