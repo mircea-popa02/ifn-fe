@@ -95,7 +95,7 @@ const PrintContract = () => {
       <h1 className="printcontract-title">CONTRACT DE ÎMPRUMUT</h1>
       <p className="printcontract-subtitle">
         Nr. <strong>{contract.contract_number}</strong> din data de{" "}
-        <strong>{contract.date}</strong>
+        <strong>{contract.date.$date}</strong>
       </p>
       <p className="printcontract-subtitle">
         încheiat în "Agenția Buzău" localitatea Buzău, str. Triumfului, nr 38,
@@ -158,7 +158,7 @@ const PrintContract = () => {
         </h2>
         <p className="printcontract-section-content">
           Împrumutul se pune la dispoziţia ÎMPRUMUTATULUI integral la data de{" "}
-          {contract.date}, în numerar prin agent (teritorial), sau prin
+          {contract.date.$date}, în numerar prin agent (teritorial), sau prin
           virament, în contul bancar indicat de împrumutat, după reținerea
           tarifului de înscriere în asociație și a fondului social ( după caz ).
         </p>
@@ -411,8 +411,9 @@ const PrintContract = () => {
           2008/48/CE și art. 5 din OUG 50/2010 actualizată (privind contractele
           de credit pentru consumatori), Codului Civil și Codului de procedură
           civilă. Prezentul contract, citit și aprobat de toate părțile
-          contractante, a fost încheiat astăzi, <strong>{contract.date}</strong>{" "}
-          în 5 exemplare, fiecărei părţi semnatare revenindu-i câte un exemplar.
+          contractante, a fost încheiat astăzi,{" "}
+          <strong>{contract.date.$date}</strong> în 5 exemplare, fiecărei părţi
+          semnatare revenindu-i câte un exemplar.
         </p>
       </div>
 
