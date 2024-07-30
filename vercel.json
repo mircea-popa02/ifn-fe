@@ -1,16 +1,8 @@
 {
     "rewrites": [
         {
-            "source": "/contracts/:contractNumber/graficrambursare",
-            "destination": "/contracts/[contractNumber]/graficrambursare"
-        },
-        {
-            "source": "/contracts/:contractNumber/printcontract",
-            "destination": "/contracts/[contractNumber]/printcontract"
-        },
-        {
-            "source": "/payments/:payment_id/chitanta",
-            "destination": "/payments/[payment_id]/chitanta"
+            "source": "/(.*)",
+            "destination": "/"
         }
     ]
 }
