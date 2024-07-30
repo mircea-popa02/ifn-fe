@@ -60,6 +60,8 @@ const ClientForm = ({
         delete submissionData._id;
       }
 
+      console.log("Data to send:", submissionData);
+
       const response = await fetch(url, {
         method: method,
         headers: {
