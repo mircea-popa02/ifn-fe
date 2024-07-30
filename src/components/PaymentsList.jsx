@@ -46,7 +46,7 @@ const PaymentsList = () => {
       const start = startDate ? new Date(startDate).toISOString() : "";
       const end = endDate ? new Date(endDate).toISOString() : "";
       const response = await fetch(
-        `${API_URL}/payments/`,
+        `${API_URL}/payments/search?start_date=${start}&end_date=${end}&page=${page}&limit=${limit}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -59,7 +59,7 @@ const PaymentsList = () => {
       }
       const data = await response.json();
       
-      setPayments(data.payments);
+      setPayments(data?.payments);
       setCurrentPage(data.page);
       setTotalPages(Math.ceil(data.total_payments / limit));
     } catch (error) {
