@@ -47,6 +47,7 @@ const ContractForm = ({
   }, [initialValues, isUpdate, token]);
 
   const handleSave = async () => {
+    let responseBody;
     try {
       const url = isUpdate
         ? `${API_URL}/contracts/${formData.contract_number}`
@@ -76,7 +77,8 @@ const ContractForm = ({
         body: JSON.stringify(dataToSend),
       });
 
-      const responseBody = await response.text();
+      responseBody = await response.text();
+      let jsonResponse;
 
       if (response.ok) {
         onContractAdded();
@@ -84,13 +86,25 @@ const ContractForm = ({
         ToastQueue.positive(
           isUpdate
             ? "Contract updated successfully!"
-            : "Contract created successfully!", { timeout: 3000 }
+            : "Contract created successfully!",
+          { timeout: 3000 }
         );
       } else {
-        console.error("Failed to save contract:", responseBody);
+        try {
+          jsonResponse = JSON.parse(responseBody);
+        } catch (error) {
+          jsonResponse = { error: "An unknown error occurred" };
+        }
+        console.error("Failed to save contract:", jsonResponse.error);
+        ToastQueue.negative(jsonResponse.error, {
+          timeout: 3000,
+        });
       }
     } catch (error) {
       console.error("Error saving contract:", error);
+      ToastQueue.negative(error.message || error, {
+        timeout: 3000,
+      });
     }
   };
 
