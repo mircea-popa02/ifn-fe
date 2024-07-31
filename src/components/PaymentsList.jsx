@@ -144,7 +144,7 @@ const PaymentsList = () => {
         onPageChange={handlePageChange}
       />
       <br />
-      <p>Rezultate din <strong>{new Date(startDate).toLocaleDateString('en-GB')}</strong> pana <strong>{new Date(endDate).toLocaleDateString('en-GB')}</strong></p>
+      {/* <p>Rezultate din <strong>{new Date(startDate).toLocaleDateString('en-GB')}</strong> pana <strong>{new Date(endDate).toLocaleDateString('en-GB')}</strong></p> */}
       <Divider size="S"/>
       <br />
       {isLoading ? (

@@ -13,7 +13,7 @@ const Receipt = () => {
 
   const fetchPayment = async () => {
     try {
-      const response = await fetch(`${API_URL}/payments/search/${payment_id}`, {
+      const response = await fetch(`${API_URL}/payments/${payment_id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
